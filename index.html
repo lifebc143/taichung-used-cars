@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>台中二手車買賣｜瑞柏國際車業 × 斑彩市集</title>
+<meta name="description" content="瑞柏國際車業 × 斑彩市集：台中二手車買賣。買車可預約試車、送車到府；賣車由瑞柏收車，LINE 私訊估價。">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif; background: #f7f3ea; color: #222; line-height: 1.7; }
+  a { color: #0e3b34; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 18px 60px; }
+
+  header { background: #0e3b34; color: #fff; padding: 34px 18px 30px; text-align: center; }
+  header .brand { font-size: 15px; letter-spacing: 2px; color: #f5c86e; margin-bottom: 8px; }
+  header h1 { font-size: 32px; line-height: 1.3; }
+  header p { margin-top: 8px; font-size: 16px; color: #dfe9e6; }
+
+  .cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+  .btn { display: inline-block; padding: 11px 22px; border-radius: 999px; font-size: 16px; font-weight: 700; text-decoration: none; }
+  .btn-orange { background: #e86a33; color: #fff; }
+  .btn-white { background: #fff; color: #0e3b34; }
+  .btn-line { background: #06c755; color: #fff; }
+
+  .services { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 28px 0; }
+  @media (max-width: 640px) { .services { grid-template-columns: 1fr; } }
+  .service { background: #fff; border-radius: 14px; padding: 22px; border: 1px solid #e5ddcb; }
+  .service h2 { font-size: 20px; color: #0e3b34; margin-bottom: 6px; }
+  .service p { font-size: 15px; color: #444; }
+
+  .section-title { font-size: 22px; color: #0e3b34; margin: 34px 0 14px; border-left: 6px solid #e86a33; padding-left: 12px; }
+
+  .car { background: #fff; border-radius: 16px; border: 1px solid #e5ddcb; overflow: hidden; }
+  .car-head { background: #0e3b34; color: #fff; padding: 20px 22px; }
+  .car-head h3 { font-size: 24px; }
+  .car-head .sub { color: #dfe9e6; font-size: 15px; margin-top: 2px; }
+  .price { font-size: 30px; font-weight: 800; color: #e86a33; margin-top: 8px; }
+  .price small { font-size: 15px; color: #fff; font-weight: 400; }
+  .car-body { padding: 22px; }
+  .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .badge { background: #eef4f1; color: #0e3b34; border-radius: 999px; padding: 5px 13px; font-size: 14px; font-weight: 700; }
+  .badge.hot { background: #e86a33; color: #fff; }
+  .specs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 18px; font-size: 15px; }
+  @media (max-width: 640px) { .specs { grid-template-columns: 1fr; } }
+  .specs dt { color: #888; font-size: 13px; }
+  .specs dd { font-weight: 700; }
+  .hot-box { background: #fdf3ec; border: 1px solid #f3c9a8; border-radius: 12px; padding: 16px 18px; margin-top: 18px; font-size: 15px; }
+  .hot-box b { color: #0e3b34; }
+  .links { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+  .links a { display: inline-block; padding: 10px 18px; border-radius: 999px; border: 2px solid #0e3b34; color: #0e3b34; font-weight: 700; text-decoration: none; font-size: 15px; }
+  .links a:hover { background: #0e3b34; color: #fff; }
+
+  .gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; }
+  .gallery figure { margin: 0; }
+  .gallery figure.hero { grid-column: 1 / -1; }
+  .gallery img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 10px; display: block; }
+  .gallery figcaption { font-size: 13px; color: #666; text-align: center; padding-top: 4px; }
+  @media (max-width: 640px) { .gallery { grid-template-columns: repeat(2, 1fr); } }
+
+  .coming { background: #fff; border: 1px dashed #c9bfa5; border-radius: 14px; padding: 22px; text-align: center; color: #666; font-size: 15px; }
+
+  footer { background: #0e3b34; color: #fff; margin-top: 40px; padding: 28px 18px; text-align: center; }
+  footer h2 { font-size: 20px; margin-bottom: 6px; }
+  footer p { font-size: 15px; color: #dfe9e6; }
+  footer .tel { font-size: 22px; font-weight: 800; color: #fff; margin: 8px 0; }
+  footer a { color: #f5c86e; }
+  .fine { margin-top: 14px; font-size: 13px; color: #9db8b1; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">瑞柏國際車業 × 斑彩市集</div>
+  <h1>台中二手車買賣</h1>
+  <p>買車、賣車都在台中地區，實車實價，歡迎預約賞車。</p>
+  <div class="cta-row">
+    <a class="btn btn-orange" href="#cars">看現在的車</a>
+    <a class="btn btn-white" href="#sell">我要賣車</a>
+    <a class="btn btn-line" href="https://line.me/ti/p/lifeab">LINE：lifeab</a>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="services">
+    <div class="service">
+      <h2>買車</h2>
+      <p>台中市區內可預約試車、預約送車到府。看車請來台中，附近縣市也可以。</p>
+    </div>
+    <div class="service" id="sell">
+      <h2>賣車</h2>
+      <p>要賣車也可以找我們，瑞柏收車。車況、價格用 LINE 私訊估價，方便又快速。</p>
+    </div>
+  </div>
+
+  <h2 class="section-title" id="cars">現在的車</h2>
+
+  <article class="car">
+    <div class="car-head">
+      <h3>2023 Lexus UX250h</h3>
+      <div class="sub">油電休旅・白色・里程 66,358 公里</div>
+      <div class="price">NT$998,000 <small>（99.8 萬）</small></div>
+    </div>
+    <div class="car-body">
+      <div class="gallery">
+        <figure class="hero"><img src="images/ux250h-01.jpg" alt="2023 Lexus UX250h 車頭外觀" loading="lazy" onerror="this.closest('figure').style.display='none'"><figcaption>車頭外觀</figcaption></figure>
+        <figure><img src="images/ux250h-02.jpg" alt="儀表板與里程表" loading="lazy" onerror="this.closest('figure').style.display='none'"><figcaption>儀表板・里程表</figcaption></figure>
+        <figure><img src="images/ux250h-03.jpg" alt="方向盤與中控" loading="lazy" onerror="this.closest('figure').style.display='none'"><figcaption>方向盤與中控</figcaption></figure>
+        <figure><img src="images/ux250h-04.jpg" alt="前座皮椅" loading="lazy" onerror="this.closest('figure').style.display='none'"><figcaption>前座皮椅</figcaption></figure>
+        <figure><img src="images/ux250h-05.jpg" alt="後座皮椅" loading="lazy" onerror="this.closest('figure').style.display='none'"><figcaption>後座皮椅</figcaption></figure>
+        <figure><img src="images/ux250h-06.jpg" alt="360 環景螢幕" loading="lazy" onerror="this.closest('figure').style.display='none'"><figcaption>360 環景螢幕</figcaption></figure>
+        <figure><img src="images/ux250h-07.jpg" alt="中控台與雙區恆溫" loading="lazy" onerror="this.closest('figure').style.display='none'"><figcaption>中控台・雙區恆溫</figcaption></figure>
+        <figure><img src="images/ux250h-08.jpg" alt="車尾外觀" loading="lazy" onerror="this.closest('figure').style.display='none'"><figcaption>車尾外觀</figcaption></figure>
+        <figure><img src="images/ux250h-09.jpg" alt="電動尾門開啟" loading="lazy" onerror="this.closest('figure').style.display='none'"><figcaption>電動尾門開啟</figcaption></figure>
+        <figure><img src="images/ux250h-10.jpg" alt="尾門按鍵" loading="lazy" onerror="this.closest('figure').style.display='none'"><figcaption>尾門按鍵</figcaption></figure>
+        <figure><img src="images/ux250h-11.jpg" alt="輪胎與米其林輪胎" loading="lazy" onerror="this.closest('figure').style.display='none'"><figcaption>輪胎・米其林</figcaption></figure>
+        <figure><img src="images/ux250h-12.jpg" alt="後視鏡與盲點偵測" loading="lazy" onerror="this.closest('figure').style.display='none'"><figcaption>後視鏡・盲點偵測</figcaption></figure>
+      </div>
+      <div class="badges">
+        <span class="badge hot">HOT 認證車</span>
+        <span class="badge">油電綜效 178 匹</span>
+        <span class="badge">平均油耗 21.7 km/L</span>
+        <span class="badge">360 環景影像</span>
+        <span class="badge">盲點偵測</span>
+        <span class="badge">電動尾門</span>
+      </div>
+      <dl class="specs">
+        <div><dt>年份車款</dt><dd>2023 Lexus UX250h</dd></div>
+        <div><dt>車色</dt><dd>白色</dd></div>
+        <div><dt>里程</dt><dd>66,358 公里（里程表實拍）</dd></div>
+        <div><dt>動力</dt><dd>油電混合綜效 178 匹</dd></div>
+        <div><dt>油耗</dt><dd>平均 21.7 km/L</dd></div>
+        <div><dt>安全</dt><dd>Lexus Safety System+、8 氣囊</dd></div>
+        <div><dt>配備</dt><dd>無線 CarPlay＋8 吋觸控螢幕、雙區恆溫空調、黑色皮椅＋雙前座電動調整、米其林 Primacy 4 輪胎</dd></div>
+        <div><dt>賞車</dt><dd>台中市區內試車、預約送車</dd></div>
+      </dl>
+      <div class="hot-box">
+        <b>HOT 認證車：</b>180 項查驗，<b>三大保證</b>（無泡水、無重大事故、無引擎變造，不符原價買回），<b>五大保固</b>（引擎、變速箱、方向機、啟動馬達、發電機，保固 1 年／2 萬公里）。
+      </div>
+      <div class="links">
+        <a href="https://www.facebook.com/marketplace/item/958655857062464" target="_blank" rel="noopener">臉書刊登</a>
+        <a href="https://www.threads.com/@ammolitelife/post/DfuMiXcD70d" target="_blank" rel="noopener">Threads 貼文</a>
+        <a href="https://www.instagram.com/reel/DfwBQquDtvT/" target="_blank" rel="noopener">30 秒影片（IG）</a>
+      </div>
+    </div>
+  </article>
+
+  <h2 class="section-title">更多車輛</h2>
+  <div class="coming">更多車輛陸續上架中。想賣車，或想找特定車款，直接 LINE 私訊我們。</div>
+
+</div>
+
+<footer>
+  <h2>瑞柏國際車業</h2>
+  <p>台中市大雅區中清路四段 465 巷 16 之 1 號</p>
+  <div class="tel">0967 29 5141</div>
+  <p>LINE：<a href="https://line.me/ti/p/lifeab">lifeab</a>（私訊預約賞車、賣車估價）</p>
+  <p class="fine">瑞柏國際車業 × 斑彩市集｜2026 年 11 月</p>
+</footer>
+
+</body>
+</html>
