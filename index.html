@@ -78,6 +78,18 @@
   .car-note { font-size: 15px; color: #444; margin-top: 16px; }
   .copy-line { background: #06c755; color: #fff; border: none; border-radius: 999px; padding: 11px 22px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 12px; }
 
+  .glance { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0 8px; }
+  @media (max-width: 640px) { .glance { grid-template-columns: repeat(2, 1fr); } }
+  .glance a.tile { display: block; background: #fff; border: 1px solid #e5ddcb; border-radius: 12px; overflow: hidden; text-decoration: none; color: #222; }
+  .glance a.tile:hover { border-color: #e86a33; }
+  .glance a.tile img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; }
+  .glance .tile-name { font-size: 14px; font-weight: 700; line-height: 1.4; padding: 8px 10px 0; }
+  .glance .tile-price { font-size: 17px; font-weight: 800; color: #e86a33; padding: 2px 10px 10px; }
+  .glance .tile-price small { font-size: 12px; color: #888; font-weight: 400; }
+  .glance-hint { font-size: 14px; color: #666; margin-top: -6px; }
+  .car { scroll-margin-top: 12px; }
+  html { scroll-behavior: smooth; }
+
   .section-title { font-size: 22px; color: #0e3b34; margin: 34px 0 14px; border-left: 6px solid #e86a33; padding-left: 12px; }
 
   .car { background: #fff; border-radius: 16px; border: 1px solid #e5ddcb; overflow: hidden; }
@@ -134,6 +146,27 @@
 </header>
 
 <div class="wrap">
+  <h2 class="section-title">全部車輛一覽</h2>
+  <p class="glance-hint">點一下，直接跳到那台車的詳細介紹。</p>
+  <div class="glance">
+    <a class="tile" href="#car-cayenne"><img src="images/cayenne-01.jpg" alt="2015 Porsche Cayenne Diesel" loading="lazy"><div class="tile-name">2015 Porsche Cayenne Diesel</div><div class="tile-price">58.8萬 <small>NT$588,000</small></div></a>
+    <a class="tile" href="#car-model3eap"><img src="images/model3eap-01.jpg" alt="2022 Tesla Model 3 Long Range EAP" loading="lazy"><div class="tile-name">2022 Tesla Model 3 Long Range EAP</div><div class="tile-price">119萬 <small>NT$1,190,000</small></div></a>
+    <a class="tile" href="#car-318i"><img src="images/318i-01.jpg" alt="2021 BMW 318i Luxury" loading="lazy"><div class="tile-name">2021 BMW 318i Luxury</div><div class="tile-price">98.8萬 <small>NT$988,000</small></div></a>
+    <a class="tile" href="#car-modelx"><img src="images/modelx-01.jpg" alt="2019 Tesla Model X Performance" loading="lazy"><div class="tile-name">2019 Tesla Model X Performance</div><div class="tile-price">178萬 <small>NT$1,780,000</small></div></a>
+    <a class="tile" href="#car-v250d"><img src="images/v250d-01.jpg" alt="2018 Mercedes-Benz V250d" loading="lazy"><div class="tile-name">2018 Mercedes-Benz V250d</div><div class="tile-price">98萬 <small>NT$980,000</small></div></a>
+    <a class="tile" href="#car-colt"><img src="images/colt-01.jpg" alt="2014 Mitsubishi Colt Plus" loading="lazy"><div class="tile-name">2014 Mitsubishi Colt Plus</div><div class="tile-price">12.8萬 <small>NT$128,000</small></div></a>
+    <a class="tile" href="#car-520d"><img src="images/520dt-01.jpg" alt="2012 BMW 520d Touring" loading="lazy"><div class="tile-name">2012 BMW 520d Touring</div><div class="tile-price">38.8萬 <small>NT$388,000</small></div></a>
+    <a class="tile" href="#car-520i"><img src="images/520i-01.jpg" alt="2019 BMW 520i M Sport" loading="lazy"><div class="tile-name">2019 BMW 520i M Sport</div><div class="tile-price">109.8萬 <small>NT$1,098,000</small></div></a>
+    <a class="tile" href="#car-defender"><img src="images/defender-01.jpg" alt="2023 Land Rover Defender 90 D250" loading="lazy"><div class="tile-name">2023 Land Rover Defender 90 D250</div><div class="tile-price">188萬 <small>NT$1,880,000</small></div></a>
+    <a class="tile" href="#car-panamera"><img src="images/panamera-01.jpg" alt="2023 Porsche Panamera 4" loading="lazy"><div class="tile-name">2023 Porsche Panamera 4</div><div class="tile-price">418萬 <small>NT$4,180,000</small></div></a>
+    <a class="tile" href="#car-mazda5"><img src="images/mazda5-01.jpg" alt="2014 Mazda 5 七人座" loading="lazy"><div class="tile-name">2014 Mazda 5 七人座</div><div class="tile-price">29.8萬 <small>NT$298,000</small></div></a>
+    <a class="tile" href="#car-cc"><img src="images/cc-01.jpg" alt="2021 Toyota Corolla Cross GR Sport" loading="lazy"><div class="tile-name">2021 Toyota Corolla Cross GR Sport</div><div class="tile-price">55.8萬 <small>NT$558,000</small></div></a>
+    <a class="tile" href="#car-e300"><img src="images/e300-01.jpg" alt="2021 Mercedes-Benz E300 運動版" loading="lazy"><div class="tile-name">2021 Mercedes-Benz E300 運動版</div><div class="tile-price">168萬 <small>NT$1,680,000</small></div></a>
+    <a class="tile" href="#car-altisgr"><img src="images/altis-gr-01.jpg" alt="2020 Toyota Corolla Altis GR Sport Hybrid" loading="lazy"><div class="tile-name">2020 Toyota Corolla Altis GR Sport Hybrid</div><div class="tile-price">48.8萬 <small>NT$488,000</small></div></a>
+    <a class="tile" href="#car-model3"><img src="images/model3-01.jpg" alt="2022 Tesla Model 3 Long Range" loading="lazy"><div class="tile-name">2022 Tesla Model 3 Long Range</div><div class="tile-price">99萬 <small>NT$990,000</small></div></a>
+    <a class="tile" href="#car-altis"><img src="images/altis-01.jpg" alt="2024 Toyota Corolla Altis 1.8 豪華" loading="lazy"><div class="tile-name">2024 Toyota Corolla Altis 1.8 豪華</div><div class="tile-price">52.8萬 <small>NT$528,000</small></div></a>
+    <a class="tile" href="#car-ux250h"><img src="images/ux250h-01.jpg" alt="2023 Lexus UX250h" loading="lazy"><div class="tile-name">2023 Lexus UX250h</div><div class="tile-price">99.8萬 <small>NT$998,000</small></div></a>
+  </div>
 
   <div class="services">
     <div class="service">
@@ -162,7 +195,7 @@
 
   <h2 class="section-title" id="cars">現在的車</h2>
 
-  <article class="car">
+  <article class="car" id="car-cayenne">
     <div class="car-head">
       <h3>2015 Porsche Cayenne Diesel</h3>
       <div class="sub">3.0L V6 柴油渦輪・白色・里程表實拍 161,514 公里</div>
@@ -215,7 +248,7 @@
       </div>
     </div>
   </article>
-  <article class="car">
+  <article class="car" id="car-model3eap">
     <div class="car-head">
       <h3>2022 Tesla Model 3 Long Range EAP</h3>
       <div class="sub">雙馬達四驅・深灰色・螢幕顯示 93,159 公里</div>
@@ -264,7 +297,7 @@
       </div>
     </div>
   </article>
-  <article class="car">
+  <article class="car" id="car-318i">
     <div class="car-head">
       <h3>2021 BMW 318i Luxury</h3>
       <div class="sub">入門豪華房車・白色・里程表實拍 41,789 公里</div>
@@ -311,7 +344,7 @@
     </div>
   </article>
 
-  <article class="car">
+  <article class="car" id="car-modelx">
     <div class="car-head">
       <h3>2019 Tesla Model X Performance</h3>
       <div class="sub">純電休旅・深藍色・螢幕顯示 73,850 公里</div>
@@ -370,7 +403,7 @@
     </div>
   </article>
 
-  <article class="car">
+  <article class="car" id="car-v250d">
     <div class="car-head">
       <h3>2018 Mercedes-Benz V250d</h3>
       <div class="sub">八人座豪華 MPV・黑色・13萬公里</div>
@@ -420,7 +453,7 @@
     </div>
   </article>
 
-  <article class="car">
+  <article class="car" id="car-colt">
     <div class="car-head">
       <h3>2014 Mitsubishi Colt Plus</h3>
       <div class="sub">五門掀背小車・灰色・里程表實拍 119,878 公里</div>
@@ -472,7 +505,7 @@
     </div>
   </article>
 
-  <article class="car">
+  <article class="car" id="car-520d">
     <div class="car-head">
       <h3>2012 BMW 520d Touring</h3>
       <div class="sub">柴油旅行車・黑色・里程表實拍 265,981 公里</div>
@@ -530,7 +563,7 @@
     </div>
   </article>
 
-  <article class="car">
+  <article class="car" id="car-520i">
     <div class="car-head">
       <h3>2019 BMW 520i M Sport</h3>
       <div class="sub">中大型豪華房車・白色・里程 105,000 公里</div>
@@ -581,7 +614,7 @@
       </div>
     </div>
   </article>
-  <article class="car">
+  <article class="car" id="car-defender">
     <div class="car-head">
       <h3>2023 Land Rover Defender 90 D250</h3>
       <div class="sub">短軸三門越野休旅・黑色・里程 51,796 公里</div>
@@ -630,7 +663,7 @@
     </div>
   </article>
 
-  <article class="car">
+  <article class="car" id="car-panamera">
     <div class="car-head">
       <h3>2023 Porsche Panamera 4</h3>
       <div class="sub">四門跑車・蠟灰色・里程 11,200 公里</div>
@@ -687,7 +720,7 @@
     </div>
   </article>
 
-  <article class="car">
+  <article class="car" id="car-mazda5">
     <div class="car-head">
       <h3>2014 Mazda 5 七人座</h3>
       <div class="sub">七人座 MPV・白色・里程 72,387 公里</div>
@@ -737,7 +770,7 @@
     </div>
   </article>
 
-  <article class="car">
+  <article class="car" id="car-cc">
     <div class="car-head">
       <h3>2021 Toyota Corolla Cross GR Sport</h3>
       <div class="sub">運動休旅・白色（雙色車頂）・里程 133,043 公里</div>
@@ -790,7 +823,7 @@
     </div>
   </article>
 
-  <article class="car">
+  <article class="car" id="car-e300">
     <div class="car-head">
       <h3>2021 Mercedes-Benz E300 運動版</h3>
       <div class="sub">豪華房車・白色・里程 47,469 公里</div>
@@ -840,7 +873,7 @@
     </div>
   </article>
 
-  <article class="car">
+  <article class="car" id="car-altisgr">
     <div class="car-head">
       <h3>2020 Toyota Corolla Altis GR Sport Hybrid</h3>
       <div class="sub">油電房車・白色・里程 281,631 公里</div>
@@ -885,7 +918,7 @@
     </div>
   </article>
 
-  <article class="car">
+  <article class="car" id="car-model3">
     <div class="car-head">
       <h3>2022 Tesla Model 3 Long Range</h3>
       <div class="sub">純電房車・白色・里程 120,000 公里</div>
@@ -931,7 +964,7 @@
     </div>
   </article>
 
-  <article class="car">
+  <article class="car" id="car-altis">
     <div class="car-head">
       <h3>2024 Toyota Corolla Altis 1.8 豪華</h3>
       <div class="sub">汽油房車・白色・里程 56,157 公里</div>
@@ -982,7 +1015,7 @@
     </div>
   </article>
 
-  <article class="car">
+  <article class="car" id="car-ux250h">
     <div class="car-head">
       <h3>2023 Lexus UX250h</h3>
       <div class="sub">油電休旅・白色・里程 66,358 公里</div>
