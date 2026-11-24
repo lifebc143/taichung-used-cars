@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://lifebc143.github.io/taichung-used-cars/sitemap.xml
