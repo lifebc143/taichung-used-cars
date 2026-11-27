@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GOGO換車站｜大台中好車網（系統雛形＋6萬元方案確認書）</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Microsoft JhengHei", sans-serif;
+      background-color: #f3f4f6;
+      color: #1f2937;
+    }
+
+    .editable-field {
+      border-bottom: 1.5px dashed #fb923c;
+      padding: 1px 4px;
+      border-radius: 4px;
+      transition: background-color 0.2s, border-color 0.2s;
+      cursor: text;
+    }
+    .editable-field:hover,
+    .editable-field:focus {
+      background-color: #fff7ed;
+      border-bottom-color: #e85d04;
+      outline: none;
+    }
+
+    /* 隱藏捲軸但保留橫向滑動 */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 11mm 13mm;
+      }
+      body {
+        background-color: #ffffff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      #viewPrototype {
+        display: none !important;
+      }
+      #viewQuote {
+        display: block !important;
+      }
+      .print-container {
+        box-shadow: none !important;
+        border: none !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+      }
+      .editable-field {
+        border-bottom: none !important;
+        background: transparent !important;
+        padding: 0 !important;
+      }
+      .page-break-avoid {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body class="pb-16">
+
+  <!-- 頂部雙模式切換控制列（演示用，列印 PDF 時自動隱藏） -->
+  <div class="no-print sticky top-0 z-50 bg-gray-900 text-white shadow-lg border-b border-gray-800">
+    <div class="max-w-6xl mx-auto px-3 py-2.5 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar">
+        <button
+          id="tabBtnProto"
+          type="button"
+          onclick="switchMainTab('proto')"
+          class="px-3 py-2 rounded-lg text-xs sm:text-sm font-bold bg-[#e85d04] text-white shadow transition whitespace-nowrap cursor-pointer"
+        >
+          🚗 網站雛形展示（母網站＋多車商＋資料庫）
+        </button>
+        <button
+          id="tabBtnQuote"
+          type="button"
+          onclick="switchMainTab('quote')"
+          class="px-3 py-2 rounded-lg text-xs sm:text-sm font-bold bg-gray-800 text-gray-300 hover:bg-gray-700 transition whitespace-nowrap cursor-pointer"
+        >
+          📄 6萬元方案對照與正式確認書
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2 ml-auto">
+        <button
+          type="button"
+          onclick="handlePrintPDF()"
+          class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold bg-orange-600 hover:bg-orange-500 text-white shadow transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
+        >
+          <span>📄</span>
+          <span>確認書存為 PDF</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 輕量提示框（取代 alert） -->
+  <div id="toastBox" class="no-print hidden fixed bottom-5 right-4 left-4 sm:left-auto sm:w-96 z-50 bg-gray-900 text-white border border-orange-500/50 px-4 py-3 rounded-xl text-sm shadow-2xl flex items-center justify-between gap-3">
+    <span id="toastText">操作成功</span>
+    <button type="button" onclick="hideToast()" class="text-gray-400 hover:text-white font-bold px-1.5">✕</button>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 模式一：GOGO換車站｜大台中好車網 完整互動網頁雛形 -->
+  <!-- ===================================================================== -->
+  <div id="viewPrototype" class="block">
+
+    <!-- 網站頂部導覽列（整合 tgcar.com.tw 全選單架構） -->
+    <header class="bg-white border-b border-gray-200 shadow-sm">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+        <!-- Logo 區 -->
+        <div class="flex items-center gap-3 cursor-pointer" onclick="selectDealer('ALL')">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#e85d04] to-orange-600 text-white font-black flex items-center justify-center text-lg shadow">
+            台
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-lg sm:text-xl font-black text-gray-900 tracking-tight">GOGO換車站｜大台中好車網</span>
+              <span class="hidden sm:inline-block text-[11px] font-bold bg-orange-100 text-[#e85d04] px-2 py-0.5 rounded-md">台中在地公會嚴選</span>
+            </div>
+            <p class="text-xs text-gray-500">一車一況透明揭露・跨車商即時同步資料庫</p>
+          </div>
+        </div>
+
+        <!-- 主導覽選單（對照 tgcar.com.tw） -->
+        <nav class="hidden lg:flex items-center gap-5 text-sm font-semibold text-gray-700">
+          <button type="button" onclick="selectDealer('ALL')" class="hover:text-[#e85d04] transition cursor-pointer">現有車款</button>
+          <button type="button" onclick="scrollToDealers()" class="hover:text-[#e85d04] transition cursor-pointer">嚴選店家</button>
+          <button type="button" onclick="openInfoModal('services')" class="hover:text-[#e85d04] transition cursor-pointer">服務項目 ▾</button>
+          <button type="button" onclick="openInfoModal('sell')" class="hover:text-[#e85d04] transition cursor-pointer">我要賣車</button>
+          <button type="button" onclick="openInfoModal('media')" class="hover:text-[#e85d04] transition cursor-pointer">影音與資訊</button>
+        </nav>
+
+        <!-- 右側操作按鈕 -->
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            onclick="openFavoritesModal()"
+            class="px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 hover:bg-orange-50 text-xs sm:text-sm font-bold text-gray-700 flex items-center gap-1.5 transition cursor-pointer"
+          >
+            <span>❤️ 收藏</span>
+            <span id="favCountBadge" class="bg-[#e85d04] text-white text-xs px-1.5 py-0.5 rounded-full">0</span>
+          </button>
+          <button
+            type="button"
+            onclick="openAdminModal()"
+            class="px-3.5 py-2 rounded-xl bg-gray-900 hover:bg-gray-800 text-white text-xs sm:text-sm font-bold shadow-sm flex items-center gap-1.5 transition cursor-pointer"
+          >
+            <span>⚙️</span>
+            <span>車商／公會後台模擬</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4 pt-5 space-y-6">
+
+      <!-- 動態視角橫幅：顯示目前是「母網站全站視角」或「單一車商專屬模組化網頁」 -->
+      <div id="storefrontBanner" class="rounded-2xl overflow-hidden shadow-md bg-gradient-to-r from-slate-900 via-slate-800 to-orange-950 text-white p-5 sm:p-7 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div id="bannerContent">
+          <div class="inline-flex items-center gap-2 bg-white/15 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-orange-300 mb-2">
+            <span>📢 母網站全站視角</span>
+            <span>•</span>
+            <span>多車商資料庫即時串接中</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-black tracking-tight">2027 台中新車大展籌備中｜在地公會嚴選好車</h2>
+          <p class="text-xs sm:text-sm text-gray-300 mt-1.5">
+            整合大台中嚴選車商庫存，每台車皆提供真實車況與細節揭露，直接點擊下方車商可體驗「單一車商模組化專屬網頁」。
+          </p>
+        </div>
+        <div id="bannerAction" class="shrink-0">
+          <button
+            type="button"
+            onclick="openAdminModal()"
+            class="px-4 py-2.5 rounded-xl bg-[#e85d04] hover:bg-orange-500 text-white text-sm font-bold shadow-lg transition cursor-pointer"
+          >
+            ➕ 模擬車商上架／新增車商
+          </button>
+        </div>
+      </div>
+
+      <!-- 4 大快捷入口卡片（對照 5745.jpg 設計） -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <button type="button" onclick="selectDealer('ALL'); document.getElementById('searchInput').focus();" class="bg-white hover:border-[#e85d04] border border-gray-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 shadow-sm transition cursor-pointer">
+          <div class="w-11 h-11 rounded-xl bg-orange-100 text-[#e85d04] font-black text-lg flex items-center justify-center">車</div>
+          <span class="text-sm font-bold text-gray-900">我要買車</span>
+          <span class="text-[11px] text-gray-500">跨店即時搜尋車源</span>
+        </button>
+
+        <button type="button" onclick="scrollToDealers()" class="bg-white hover:border-[#e85d04] border border-gray-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 shadow-sm transition cursor-pointer">
+          <div class="w-11 h-11 rounded-xl bg-orange-100 text-[#e85d04] font-black text-lg flex items-center justify-center">嚴</div>
+          <span class="text-sm font-bold text-gray-900">嚴選店家</span>
+          <span class="text-[11px] text-gray-500">切換獨立車商網頁</span>
+        </button>
+
+        <button type="button" onclick="openAdminModal()" class="bg-white hover:border-[#e85d04] border border-gray-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 shadow-sm transition cursor-pointer">
+          <div class="w-11 h-11 rounded-xl bg-orange-100 text-[#e85d04] font-black text-lg flex items-center justify-center">＋</div>
+          <span class="text-sm font-bold text-gray-900">會員上架</span>
+          <span class="text-[11px] text-gray-500">車商自助建檔同步</span>
+        </button>
+
+        <button type="button" onclick="openInfoModal('sell')" class="bg-white hover:border-[#e85d04] border border-gray-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 shadow-sm transition cursor-pointer">
+          <div class="w-11 h-11 rounded-xl bg-orange-100 text-[#e85d04] font-black text-lg flex items-center justify-center">估</div>
+          <span class="text-sm font-bold text-gray-900">我要賣車／服務</span>
+          <span class="text-[11px] text-gray-500">鑑定・貸款・保修</span>
+        </button>
+      </div>
+
+      <!-- 嚴選店家模組化專頁切換列（展示母網站與單一車商獨立網頁切換） -->
+      <section id="dealerSection" class="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-extrabold text-[#e85d04]">嚴選店家（點擊切換模組化獨立網頁）</span>
+            <span class="text-xs text-gray-500">一鍵建立車商即自動生成專屬網頁</span>
+          </div>
+          <button
+            type="button"
+            onclick="openAdminModal('dealer')"
+            class="text-xs font-bold text-[#e85d04] hover:underline cursor-pointer"
+          >
+            ＋ 新增車商測試模組化開通
+          </button>
+        </div>
+        <div id="dealerPillsContainer" class="flex items-center gap-2.5 overflow-x-auto no-scrollbar pb-1">
+          <!-- 由 JS 動態渲染車商按鈕 -->
+        </div>
+      </section>
+
+      <!-- 搜尋與多維度篩選區（完整對應 tgcar.com.tw 6 大維度＋5745.jpg 品牌預算） -->
+      <section class="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6 shadow-sm space-y-4">
+        <!-- 關鍵字搜尋列 -->
+        <div class="flex flex-col sm:flex-row gap-2.5">
+          <div class="relative flex-1">
+            <input
+              id="searchInput"
+              type="text"
+              oninput="applyFilters()"
+              placeholder="輸入品牌、車型或配備關鍵字（例如：GLE450、RAV4、CR-V）"
+              class="w-full pl-4 pr-10 py-3 rounded-xl border-2 border-[#e85d04]/70 focus:border-[#e85d04] focus:outline-none text-sm font-medium"
+            />
+          </div>
+          <div class="flex gap-2">
+            <button
+              type="button"
+              onclick="applyFilters()"
+              class="px-6 py-3 rounded-xl bg-[#e85d04] hover:bg-[#c44d03] text-white font-bold text-sm shadow transition cursor-pointer"
+            >
+              搜尋車源
+            </button>
+            <button
+              type="button"
+              onclick="resetFilters()"
+              class="px-4 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-sm transition cursor-pointer"
+            >
+              清除條件
+            </button>
+          </div>
+        </div>
+
+        <!-- 常見品牌快速篩選圓標（對照 5745.jpg + tgcar.com.tw） -->
+        <div>
+          <div class="text-xs font-bold text-gray-500 mb-2">品牌快速篩選：</div>
+          <div id="brandGrid" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-11 gap-2">
+            <!-- 由 JS 動態渲染 -->
+          </div>
+        </div>
+
+        <!-- 預算區間快速膠囊（對照 5745.jpg） -->
+        <div>
+          <div class="text-xs font-bold text-gray-500 mb-2">預算區間：</div>
+          <div id="pricePills" class="flex flex-wrap gap-2">
+            <!-- 由 JS 動態渲染 -->
+          </div>
+        </div>
+
+        <!-- 進階條件（對照 tgcar.com.tw：車型、里程、年份、顏色） -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2 border-t border-gray-100">
+          <select id="filterBody" onchange="applyFilters()" class="p-2.5 rounded-xl border border-gray-200 bg-gray-50 text-xs sm:text-sm font-medium text-gray-700">
+            <option value="">車型：不限車型</option>
+            <option value="SUV休旅車">SUV 休旅車</option>
+            <option value="轎車">轎車</option>
+            <option value="掀背車">掀背車</option>
+            <option value="雙門跑車">雙門跑車 / Coupe</option>
+            <option value="MPV">MPV / 商旅車</option>
+          </select>
+
+          <select id="filterMileage" onchange="applyFilters()" class="p-2.5 rounded-xl border border-gray-200 bg-gray-50 text-xs sm:text-sm font-medium text-gray-700">
+            <option value="">里程數：不限里程</option>
+            <option value="3">3 萬 km 以下</option>
+            <option value="6">6 萬 km 以下</option>
+            <option value="10">10 萬 km 以下</option>
+            <option value="999">10 萬 km 以上</option>
+          </select>
+
+          <select id="filterYear" onchange="applyFilters()" class="p-2.5 rounded-xl border border-gray-200 bg-gray-50 text-xs sm:text-sm font-medium text-gray-700">
+            <option value="">年份：不限年份</option>
+            <option value="2022">2022 年以後</option>
+            <option value="2019">2019 年以後</option>
+            <option value="2016">2016 年以後</option>
+          </select>
+
+          <select id="filterColor" onchange="applyFilters()" class="p-2.5 rounded-xl border border-gray-200 bg-gray-50 text-xs sm:text-sm font-medium text-gray-700">
+            <option value="">顏色：不限顏色</option>
+            <option value="白色">白色</option>
+            <option value="黑色">黑色</option>
+            <option value="灰色">灰色 / 銀色</option>
+            <option value="藍色">藍色 / 紅色</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- 車輛列表標題與統計 -->
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <h3 id="listHeading" class="text-lg sm:text-xl font-black text-gray-900">全站嚴選在售車源</h3>
+          <span id="carCountBadge" class="bg-orange-100 text-[#e85d04] text-xs font-extrabold px-2.5 py-1 rounded-full">
+            架上共有 8 台車
+          </span>
+        </div>
+        <div class="text-xs text-gray-500">
+          點擊車輛卡片可查看「真實車況與底盤／螺絲細節揭露」
+        </div>
+      </div>
+
+      <!-- 車輛列表網格 -->
+      <div id="carGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- 由 JS 動態渲染車輛卡片 -->
+      </div>
+
+    </div>
+
+    <!-- 網站頁尾（完整保留 tgcar.com.tw 店長資訊） -->
+    <footer class="mt-14 bg-gray-900 text-gray-300 border-t border-gray-800">
+      <div class="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
+        <div>
+          <div class="text-lg font-black text-white mb-2">GOGO換車站｜大台中好車網</div>
+          <p class="text-xs text-gray-400 leading-relaxed">
+            台中在地汽車公會嚴選車源媒合平台。整合各家優質車商獨立資料庫，實車實價、細節透明，讓大台中買車換車更安心。
+          </p>
+        </div>
+        <div class="space-y-1.5 text-xs">
+          <div class="text-sm font-bold text-white mb-2">聯絡與服務資訊（INFO）</div>
+          <p>聯絡窗口：(04) 2698-5909 陳店長 ／ 0983-051-888</p>
+          <p>官方 LINE ID：26804778（GoGo換車站）</p>
+          <p>服務地址：台中市大肚區沙田路三段591巷11-1號</p>
+          <p>營業時間：AM 09:30 ～ PM 19:30</p>
+        </div>
+        <div class="space-y-1.5 text-xs">
+          <div class="text-sm font-bold text-white mb-2">平台功能導覽（LINK）</div>
+          <div class="flex flex-wrap gap-x-4 gap-y-1.5 text-gray-400">
+            <button type="button" onclick="selectDealer('ALL')" class="hover:text-white cursor-pointer">現有車款</button>
+            <button type="button" onclick="scrollToDealers()" class="hover:text-white cursor-pointer">嚴選店家</button>
+            <button type="button" onclick="openInfoModal('services')" class="hover:text-white cursor-pointer">車輛鑑定／貸款</button>
+            <button type="button" onclick="openInfoModal('sell')" class="hover:text-white cursor-pointer">我要賣車</button>
+            <button type="button" onclick="openAdminModal()" class="hover:text-white cursor-pointer">車商上架後台</button>
+          </div>
+          <p class="pt-3 text-gray-500">© 2026 GOGO換車站・大台中好車網 版權所有</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 模式二：tgcar.com.tw 功能對照表 ＋ NT$ 60,000 正式報價與規格確認書 -->
+  <!-- ===================================================================== -->
+  <div id="viewQuote" class="hidden py-6 px-3 sm:px-6">
+    <div class="no-print max-w-4xl mx-auto mb-4 bg-orange-50 border border-orange-200 rounded-xl p-3.5 flex flex-wrap items-center justify-between gap-3">
+      <span class="text-xs sm:text-sm text-orange-950 font-medium">
+        💡 點擊下方橘色虛線文字可直接填入你的名稱／電話，完成後按右上角「確認書存為 PDF」即可下載。
+      </span>
+      <button
+        type="button"
+        onclick="handlePrintPDF()"
+        class="px-4 py-2 rounded-lg bg-[#e85d04] hover:bg-[#c44d03] text-white text-xs sm:text-sm font-bold shadow cursor-pointer"
+      >
+        📄 立即匯出 PDF 檔
+      </button>
+    </div>
+
+    <main class="print-container max-w-4xl mx-auto bg-white rounded-2xl shadow-xl border border-gray-200 p-6 sm:p-10 md:p-12">
+      <!-- 標題區 -->
+      <header class="border-b-4 border-[#e85d04] pb-6 mb-7 flex flex-col md:flex-row md:items-end justify-between gap-5">
+        <div>
+          <span class="inline-block bg-[#fff7ed] text-[#e85d04] border border-orange-200 text-xs sm:text-sm font-bold px-3 py-1 rounded-lg mb-2.5">
+            方案 B｜母網站 ＋ 多車商模組化資料庫系統（含原站功能盤點對照）
+          </span>
+          <h1 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
+            GOGO換車站｜大台中好車網 系統建置報價與規格確認書
+          </h1>
+          <p class="text-sm text-gray-500 mt-1.5 font-medium">
+            台中在地公會嚴選・車商自助上架與統一資料庫搜尋平台
+          </p>
+        </div>
+
+        <div class="bg-gray-50 border border-gray-200 rounded-xl p-3.5 text-sm text-gray-700 space-y-1 md:text-right shrink-0">
+          <p>
+            <span class="font-bold text-gray-900">客戶／委託窗口：</span>
+            <span contenteditable="true" class="editable-field font-semibold text-gray-900">陳明宏 店長</span>
+          </p>
+          <p>
+            <span class="font-bold text-gray-900">承製方／聯繫窗口：</span>
+            <span id="vendorNameQuote" contenteditable="true" class="editable-field text-gray-800">Pavel Deng（LINE：lifeab／ammolitelife@gmail.com）</span>
+          </p>
+          <p>
+            <span class="font-bold text-gray-900">報價日期：</span>
+            <span contenteditable="true" class="editable-field">2026 年 11 月 25 日</span>
+          </p>
+          <p><span class="font-bold text-gray-900">報價有效期：</span>30 天</p>
+        </div>
+      </header>
+
+      <!-- 重點報價卡片 -->
+      <section class="page-break-avoid bg-[#fff7ed] border border-orange-200 rounded-xl p-5 sm:p-6 mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div class="text-base sm:text-lg font-extrabold text-orange-950">
+              專案總建置費用（一次性買斷・完工驗收後付清・不含任何成交抽成）
+            </div>
+            <p class="text-xs sm:text-sm text-orange-900 mt-1">
+              含母網站前台、多車商模組化專屬網頁、統一資料庫搜尋及 1 次完整交接教學
+            </p>
+          </div>
+          <div class="text-3xl sm:text-4xl font-black text-[#e85d04] tracking-tight shrink-0">
+            NT$ 60,000
+          </div>
+        </div>
+      </section>
+
+      <!-- 一、原站（tgcar.com.tw）功能盤點與方案 B 升級對照表 -->
+      <section class="mb-8">
+        <h2 class="text-lg sm:text-xl font-bold text-gray-900 pl-3 border-l-4 border-[#e85d04] mb-4">
+          一、 原站（tgcar.com.tw）功能盤點與新版方案 B 規格對照
+        </h2>
+        <div class="overflow-x-auto rounded-xl border border-gray-200">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="bg-gray-50 border-b border-gray-200 text-gray-900">
+                <th class="py-3 px-4 font-bold w-1/4">功能模組</th>
+                <th class="py-3 px-4 font-bold w-1/3">原站（tgcar.com.tw）既有架構</th>
+                <th class="py-3 px-4 font-bold">新版方案 B（NT$ 60,000）升級與交付規格</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 text-gray-700 leading-relaxed">
+              <tr class="page-break-avoid">
+                <td class="py-3 px-4 font-bold text-gray-900 bg-gray-50/40">1. 網站架構與多車商機制</td>
+                <td class="py-3 px-4">單一站點展示，所有車輛混在同一後台，個別車商無獨立專屬網頁與獨立建檔權限。</td>
+                <td class="py-3 px-4"><strong class="text-gray-900">母網站＋多車商模組化網頁：</strong>新增車商資料庫紀錄即自動套用模板產生專屬店舖網頁，車輛與母網站全站搜尋雙向即時連動。</td>
+              </tr>
+              <tr class="page-break-avoid">
+                <td class="py-3 px-4 font-bold text-gray-900 bg-gray-50/40">2. 賞車搜尋與篩選功能</td>
+                <td class="py-3 px-4">支援品牌、顏色、價格區間、車型、里程數、年份 6 維度篩選與分頁列表。</td>
+                <td class="py-3 px-4"><strong class="text-gray-900">完整保留並優化手機體驗：</strong>支援關鍵字、主流品牌快速圖標、符合台中主流車價之預算區間（50萬以下／50-80萬／80-150萬／150萬以上）、車型／年份／里程即時篩選。</td>
+              </tr>
+              <tr class="page-break-avoid">
+                <td class="py-3 px-4 font-bold text-gray-900 bg-gray-50/40">3. 單台車輛詳情與信任揭露</td>
+                <td class="py-3 px-4">顯示主圖、年份／里程／CC 數、售價、瀏覽次數及「立即洽詢」收藏清單。</td>
+                <td class="py-3 px-4"><strong class="text-gray-900">強化車況透明與分享：</strong>除基本規格、在售／已售狀態切換與瀏覽統計外，新增「真實車況與細節揭露欄位（如底盤／螺絲／鑑定說明）」及一鍵分享連結、官方 LINE／電話直連。</td>
+              </tr>
+              <tr class="page-break-avoid">
+                <td class="py-3 px-4 font-bold text-gray-900 bg-gray-50/40">4. 服務項目／我要賣車／資訊頁</td>
+                <td class="py-3 px-4">含平台介紹、購車流程、鑑定／保險／貸款／維修／寵物公益、我要賣車表單、影音賞車與最新資訊文章區。</td>
+                <td class="py-3 px-4"><strong class="text-gray-900">完整保留展示與表單入口：</strong>沿用原站文字與圖片素材建置對應頁面與線上估車／洽詢入口，由公會／管理員後台維護公告與文章。</td>
+              </tr>
+              <tr class="page-break-avoid">
+                <td class="py-3 px-4 font-bold text-gray-900 bg-gray-50/40">5. 後台管理與資料備份</td>
+                <td class="py-3 px-4">傳統套版後台，需仰賴專人逐筆手動維護，缺乏一鍵備份與多權限分流。</td>
+                <td class="py-3 px-4"><strong class="text-gray-900">雙層後台＋一鍵備份：</strong>車商可自助上下架自家車輛；公會總管理員可管理嚴選店家與全站資料，並內建資料庫匯出／備份功能。</td>
+              </tr>
+              <tr class="page-break-avoid">
+                <td class="py-3 px-4 font-bold text-gray-900 bg-gray-50/40">6. 原站「汽車精品百貨」界線說明</td>
+                <td class="py-3 px-4">原站含行車紀錄器等精品購物車、產品收藏與匯款通知頁面。</td>
+                <td class="py-3 px-4"><strong class="text-orange-800">本案專注車輛媒合（不含電商金流）：</strong>為控制建置成本於 6 萬元內，本案不包含購物車結帳、庫存計價與匯款對帳系統；若需展示精品，僅提供圖文展示或外部連結。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 二、付款方式與時程節點 -->
+      <section class="page-break-avoid mb-8">
+        <h2 class="text-lg sm:text-xl font-bold text-gray-900 pl-3 border-l-4 border-[#e85d04] mb-4">
+          二、 付款方式與時程節點
+        </h2>
+        <div class="overflow-x-auto rounded-xl border border-gray-200">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="bg-gray-50 border-b border-gray-200 text-gray-900">
+                <th class="py-3 px-4 font-bold w-1/4">期別</th>
+                <th class="py-3 px-4 font-bold w-1/5">金額</th>
+                <th class="py-3 px-4 font-bold">付款條件與交付里程碑</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 text-gray-700">
+              <tr>
+                <td class="py-3.5 px-4 font-bold text-gray-900">簽約啟動階段（0%）</td>
+                <td class="py-3.5 px-4 font-bold text-gray-600">NT$ 0（免訂金）</td>
+                <td class="py-3.5 px-4">雙方確認本報價與規格書後，即正式啟動系統建置與資料庫架構開發。</td>
+              </tr>
+              <tr>
+                <td class="py-3.5 px-4 font-bold text-gray-900">完工驗收後（全款 100%）</td>
+                <td class="py-3.5 px-4 font-extrabold text-[#e85d04]">NT$ 60,000</td>
+                <td class="py-3.5 px-4">系統全部建置完成、測試無誤並完成 1 次交接教學後，一次付清全額款項，同步交付完整管理權限正式上線。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 三、完工驗收標準 -->
+      <section class="page-break-avoid mb-8">
+        <h2 class="text-lg sm:text-xl font-bold text-gray-900 pl-3 border-l-4 border-[#e85d04] mb-4">
+          三、 完工驗收標準（什麼叫完成）
+        </h2>
+        <p class="text-sm text-gray-600 mb-4 leading-relaxed">
+          承製方交付系統後，雙方按以下清單逐項驗收；全部通過並簽署驗收單後，委託方一次付清全額 NT$60,000。驗收期限為交付後 7 天內；逾期未提出書面異議，視同驗收通過。驗收不合格項目，承製方於 30 天保固期內免費修復，修復後重新驗收該項。技術架構為 PHP＋MySQL；主機放台灣網易公司（不用 GoDaddy，資安考量）。
+        </p>
+        <div class="overflow-x-auto rounded-xl border border-gray-200">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="bg-gray-50 border-b border-gray-200 text-gray-900">
+                <th class="py-3 px-4 font-bold w-1/4">驗收項目</th>
+                <th class="py-3 px-4 font-bold">通過標準</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 text-gray-700 leading-relaxed">
+              <tr class="page-break-avoid">
+                <td class="py-3 px-4 font-bold text-gray-900 bg-gray-50/40">1. 母網站前台</td>
+                <td class="py-3 px-4">關鍵字搜尋、品牌／價格／車型／里程／年份／顏色篩選皆正常；手機版正常顯示。</td>
+              </tr>
+              <tr class="page-break-avoid">
+                <td class="py-3 px-4 font-bold text-gray-900 bg-gray-50/40">2. 多車商模組化網頁</td>
+                <td class="py-3 px-4">新增車商自動生成專屬網頁；車輛與母網站雙向同步；在售／已售狀態同步更新。</td>
+              </tr>
+              <tr class="page-break-avoid">
+                <td class="py-3 px-4 font-bold text-gray-900 bg-gray-50/40">3. 車輛詳情</td>
+                <td class="py-3 px-4">規格、在售狀態、瀏覽統計、車況揭露欄位、一鍵分享、官方 LINE／電話直連皆正常。</td>
+              </tr>
+              <tr class="page-break-avoid">
+                <td class="py-3 px-4 font-bold text-gray-900 bg-gray-50/40">4. 車商自助後台</td>
+                <td class="py-3 px-4">車商可自助新增／改價／換照片／標記已售；公會管理員可管理店家；一鍵匯出資料庫備份正常。</td>
+              </tr>
+              <tr class="page-break-avoid">
+                <td class="py-3 px-4 font-bold text-gray-900 bg-gray-50/40">5. 服務與表單頁</td>
+                <td class="py-3 px-4">服務項目、我要賣車表單、影音與資訊頁完整；表單可正常送出。</td>
+              </tr>
+              <tr class="page-break-avoid">
+                <td class="py-3 px-4 font-bold text-gray-900 bg-gray-50/40">6. 交接教學</td>
+                <td class="py-3 px-4">1 次完整交接教學完成，管理權限正式交付委託方。</td>
+              </tr>
+              <tr class="page-break-avoid">
+                <td class="py-3 px-4 font-bold text-gray-900 bg-gray-50/40">不計入驗收</td>
+                <td class="py-3 px-4">雛形示範資料（8 台示範車輛、示範車商）不計入驗收；正式上線前由委託方提供真實車源資料。電商金流（購物車結帳、匯款對帳）不在本案範圍。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 四、權責劃分 -->
+      <section class="page-break-avoid mb-8">
+        <h2 class="text-lg sm:text-xl font-bold text-gray-900 pl-3 border-l-4 border-[#e85d04] mb-4">
+          四、 權責劃分：自助維護 vs. 後續收費調整
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-gray-50 border border-gray-200 rounded-xl p-5">
+            <h3 class="text-base font-bold text-gray-900 mb-3">
+              ✅ 交接後由委託方／車商「自助維護」
+            </h3>
+            <ul class="space-y-2 text-sm text-gray-700 list-disc pl-5 leading-relaxed">
+              <li>日常車輛新增、修改價格、更換照片、標記已售出或下架。</li>
+              <li>新車商帳號開通（使用既定模組化模板）與基本資料維護。</li>
+              <li>定期使用後台「匯出／備份」功能留存資料。</li>
+              <li><strong class="text-gray-900">第三方固定費用實報實銷：</strong>網域年費、主機空間、資料庫／圖片流量費，均登記於委託方指定帳號下並由委託方自行支付。</li>
+              <li><strong class="text-gray-900">網域與程式碼歸屬：</strong>網域與網站程式碼登記於委託方名下，歸委託方所有；承製方保留重用通用模組的權利。</li>
+              <li><strong class="text-gray-900">主機費用：</strong>台灣網易資訊虛擬主機（中華電信是方機房），建議多網站型 TWW-E02M：年繳 NT$5,800（約 NT$483／月），10GB 空間、每月流量 100GB、MySQL 不限個數、免費 SSL、75 天備份；入門方案年繳 NT$1,800 起。費用由委託方支付，依網易公司實際方案實報實銷（續約價方案頁未明示，簽約前確認）。</li>
+            </ul>
+          </div>
+
+          <div class="bg-gray-50 border border-gray-200 rounded-xl p-5">
+            <h3 class="text-base font-bold text-gray-900 mb-3">
+              🔧 需「另外報價收費」之維護與修改
+            </h3>
+            <ul class="space-y-2 text-sm text-gray-700 list-disc pl-5 leading-relaxed">
+              <li><strong class="text-gray-900">免費保固期：</strong>驗收上線日起算 <strong class="text-gray-900">30 天內</strong>，原規格功能異常（Bug）免費修復。</li>
+              <li><strong class="text-gray-900">保固期後或新增需求：</strong>超過 30 天後之小幅修改／除錯（約 <strong class="text-gray-900">NT$ 1,000 – $3,000／次</strong>）。</li>
+              <li><strong class="text-gray-900">客製與功能擴充：</strong>單一車商要求不同版型、新增篩選條件、改版面結構或串接新工具，依實際工時另外報價。</li>
+              <li><strong class="text-gray-900">非系統因素修復：</strong>人為誤刪資料庫還原、帳號密碼遺失重置或第三方平台改版連動調整。</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 五、專案確認簽署 -->
+      <section class="page-break-avoid pt-6 border-t-2 border-dashed border-gray-300">
+        <h2 class="text-lg sm:text-xl font-bold text-gray-900 pl-3 border-l-4 border-[#e85d04] mb-2">
+          五、 專案確認簽署
+        </h2>
+        <p class="text-xs sm:text-sm text-gray-500 mb-5">
+          雙方確認上述功能範圍、一次性建置費用、完工驗收付清全款及後續維護計費方式無誤，簽署後即正式啟動作業。
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div class="border border-gray-300 rounded-xl p-5 flex flex-col justify-between min-h-[125px] bg-white">
+            <p class="text-sm font-bold text-gray-800">委託方確認簽章：</p>
+            <div class="border-t border-gray-400 pt-2 text-xs text-gray-500 flex justify-between">
+              <span>簽名／蓋章</span>
+              <span>日期：2026 年　　月　　日</span>
+            </div>
+          </div>
+
+          <div class="border border-gray-300 rounded-xl p-5 flex flex-col justify-between min-h-[125px] bg-white">
+            <p class="text-sm font-bold text-gray-800">承製方確認簽章：</p>
+            <div class="border-t border-gray-400 pt-2 text-xs text-gray-500 flex justify-between">
+              <span>簽名／蓋章</span>
+              <span>日期：2026 年　　月　　日</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 互動彈窗 1：單車詳情與真實車況揭露視窗 -->
+  <!-- ===================================================================== -->
+  <div id="carDetailModal" class="no-print hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200 p-5 sm:p-6 space-y-4">
+      <div class="flex items-start justify-between gap-3 border-b border-gray-100 pb-3">
+        <div>
+          <span id="modalDealerTag" class="inline-block text-xs font-bold bg-orange-100 text-[#e85d04] px-2.5 py-0.5 rounded-md mb-1">六邑汽車</span>
+          <h3 id="modalCarTitle" class="text-lg sm:text-xl font-black text-gray-900">車輛名稱</h3>
+        </div>
+        <button type="button" onclick="closeModal('carDetailModal')" class="text-gray-400 hover:text-gray-700 font-bold text-lg px-2 cursor-pointer">✕</button>
+      </div>
+
+      <div id="modalCarBanner" class="rounded-xl p-5 text-white flex items-center justify-between">
+        <div>
+          <div id="modalCarBrand" class="text-xs uppercase tracking-wider opacity-80 font-bold">M-BENZ</div>
+          <div id="modalCarSpecs" class="text-sm font-semibold mt-1">2016年 ｜ 16.1萬km ｜ 3000cc</div>
+        </div>
+        <div class="text-right">
+          <div class="text-xs opacity-80">實車實價</div>
+          <div id="modalCarPrice" class="text-2xl font-black">NT$ 118.8 萬</div>
+        </div>
+      </div>
+
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-1.5">
+        <div class="text-xs font-extrabold text-amber-900">🔍 真實車況與細節揭露（解決二手車信任痛點）</div>
+        <p id="modalCarCondition" class="text-xs sm:text-sm text-amber-950 leading-relaxed"></p>
+      </div>
+
+      <div class="bg-gray-50 rounded-xl p-4 text-xs sm:text-sm space-y-1 text-gray-700">
+        <div class="font-bold text-gray-900">📍 看車與調度確認資訊：</div>
+        <p id="modalDealerInfo"></p>
+        <p class="text-xs text-gray-500 pt-1">※ 系統支援「客服調度確認」：買家點擊洽詢後，客服即時向車行確認實車在店並發送看車定位。</p>
+      </div>
+
+      <div class="flex flex-wrap gap-2 pt-2">
+        <button type="button" id="modalGoStoreBtn" class="flex-1 py-2.5 px-4 rounded-xl border border-[#e85d04] text-[#e85d04] hover:bg-orange-50 font-bold text-xs sm:text-sm transition cursor-pointer">
+          🏪 進入該車商專屬網頁
+        </button>
+        <button type="button" onclick="simulateInquiry()" class="flex-1 py-2.5 px-4 rounded-xl bg-[#e85d04] hover:bg-[#c44d03] text-white font-bold text-xs sm:text-sm shadow transition cursor-pointer">
+          💬 LINE 預約看車／確認車況
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 互動彈窗 2：車商／公會後台模擬器（新增車商、上架車輛、備份匯出） -->
+  <!-- ===================================================================== -->
+  <div id="adminModal" class="no-print hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200 p-5 sm:p-6 space-y-5">
+      <div class="flex items-center justify-between border-b border-gray-200 pb-3">
+        <div>
+          <h3 class="text-lg font-black text-gray-900">⚙️ 車商自助上架 ＆ 公會總管理後台模擬</h3>
+          <p class="text-xs text-gray-500">現場演示：新增車商即自動開通模組化網頁；上架車輛即同步至母網站搜尋</p>
+        </div>
+        <button type="button" onclick="closeModal('adminModal')" class="text-gray-400 hover:text-gray-700 font-bold text-lg px-2 cursor-pointer">✕</button>
+      </div>
+
+      <!-- 區塊 A：車商自助上架新車 -->
+      <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3">
+        <div class="text-sm font-extrabold text-gray-900">1. 車商自助上架車輛（即時同步至專屬店舖頁＋母網站）</div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-sm">
+          <select id="newCarDealer" class="p-2.5 rounded-lg border border-gray-300 bg-white"></select>
+          <select id="newCarBrand" class="p-2.5 rounded-lg border border-gray-300 bg-white">
+            <option value="Toyota">Toyota</option>
+            <option value="Honda">Honda</option>
+            <option value="M-Benz">M-Benz</option>
+            <option value="Lexus">Lexus</option>
+            <option value="BMW">BMW</option>
+            <option value="Mazda">Mazda</option>
+            <option value="Škoda">Škoda</option>
+            <option value="Porsche">Porsche</option>
+          </select>
+          <input id="newCarTitle" type="text" placeholder="車型標題（例：22年 RAV4 2.0 尊爵 實跑3萬）" class="p-2.5 rounded-lg border border-gray-300 bg-white sm:col-span-2" />
+          <input id="newCarPrice" type="number" step="0.1" placeholder="售價（萬元，例：89.8）" class="p-2.5 rounded-lg border border-gray-300 bg-white" />
+          <input id="newCarYear" type="number" placeholder="出廠年份（例：2022）" class="p-2.5 rounded-lg border border-gray-300 bg-white" />
+          <input id="newCarMileage" type="number" step="0.1" placeholder="里程數（萬km，例：3.2）" class="p-2.5 rounded-lg border border-gray-300 bg-white" />
+          <select id="newCarBody" class="p-2.5 rounded-lg border border-gray-300 bg-white">
+            <option value="SUV休旅車">SUV 休旅車</option>
+            <option value="轎車">轎車</option>
+            <option value="掀背車">掀背車</option>
+            <option value="雙門跑車">雙門跑車</option>
+          </select>
+          <input id="newCarCondition" type="text" placeholder="車況與瑕疵誠實揭露（例：全車原鈑件、右後門小酒窩已註明、附第三方認證）" class="p-2.5 rounded-lg border border-gray-300 bg-white sm:col-span-2" />
+        </div>
+        <button type="button" onclick="handleAddCar()" class="w-full py-2.5 rounded-xl bg-[#e85d04] hover:bg-[#c44d03] text-white font-bold text-sm shadow cursor-pointer">
+          ＋ 立即上架並同步資料庫
+        </button>
+      </div>
+
+      <!-- 區塊 B：公會管理員一鍵開通新車商 -->
+      <div class="bg-orange-50/70 border border-orange-200 rounded-xl p-4 space-y-3">
+        <div class="text-sm font-extrabold text-orange-950">2. 公會管理：一鍵開通新車商（自動生成模組化專屬網頁）</div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-sm">
+          <input id="newDealerName" type="text" placeholder="新車商名稱（例：大肚順發汽車）" class="p-2.5 rounded-lg border border-orange-200 bg-white" />
+          <input id="newDealerPhone" type="text" placeholder="聯絡電話（例：04-2699-1234）" class="p-2.5 rounded-lg border border-orange-200 bg-white" />
+          <input id="newDealerAddr" type="text" placeholder="台中區域地址（例：台中市烏日區）" class="p-2.5 rounded-lg border border-orange-200 bg-white" />
+        </div>
+        <button type="button" onclick="handleAddDealer()" class="px-4 py-2 rounded-xl bg-gray-900 hover:bg-gray-800 text-white font-bold text-xs sm:text-sm cursor-pointer">
+          🏪 建立車商並生成專屬網頁
+        </button>
+      </div>
+
+      <!-- 區塊 C：資料庫一鍵備份匯出 -->
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-gray-200">
+        <span class="text-xs text-gray-500">資料安全機制：支援隨時一鍵匯出全站 JSON 資料庫備份</span>
+        <button type="button" onclick="exportDatabaseBackup()" class="px-4 py-2 rounded-xl border border-gray-300 hover:bg-gray-100 text-xs font-bold text-gray-800 cursor-pointer">
+          💾 一鍵匯出資料庫備份（.json）
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 互動彈窗 3：服務項目 / 我要賣車 / 收藏清單 -->
+  <!-- ===================================================================== -->
+  <div id="infoModal" class="no-print hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-gray-200 p-5 sm:p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+        <h3 id="infoModalTitle" class="text-lg font-black text-gray-900">服務說明</h3>
+        <button type="button" onclick="closeModal('infoModal')" class="text-gray-400 hover:text-gray-700 font-bold text-lg px-2 cursor-pointer">✕</button>
+      </div>
+      <div id="infoModalBody" class="text-sm text-gray-700 space-y-3 leading-relaxed"></div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // 模擬資料庫（Multi-Tenant 車商表 ＋ 車輛表）
+    // =========================================================================
+    let dealers = [
+      { id: 'D1', code: 'A', name: '六邑汽車', phone: '04-2698-5909', address: '台中市大肚區沙田路三段591巷11-1號', badge: '公會嚴選創始店' },
+      { id: 'D2', code: 'B', name: '熊本車庫', phone: '04-2335-8822', address: '台中市烏日區中山路一段', badge: '公會嚴選認證店' },
+      { id: 'D3', code: 'C', name: '示範車商', phone: '04-2251-6699', address: '台中市西屯區環中路二段', badge: '示範店' }
+    ];
+
+    let cars = [
+      {
+        id: 'C1',
+        dealerId: 'D1',
+        brand: 'M-Benz',
+        title: '16年 GLE450 Coupe AMG 跑16.1萬km 盲點 ikey 360環景 電吸門 HK音響',
+        year: 2016,
+        mileage: 16.1,
+        cc: 2996,
+        price: 118.8,
+        body: 'SUV休旅車',
+        color: '黑色',
+        views: 342,
+        status: '在售中',
+        colorHex: 'from-slate-800 to-slate-900',
+        condition: '實車實價在店！底盤頂高檢視無漏油、四門螺絲無拆卸痕跡，前保桿有正常行駛小石頭點傷已完整拍照揭露，附第三方鑑定報告。'
+      },
+      {
+        id: 'C2',
+        dealerId: 'D1',
+        brand: 'Toyota',
+        title: '21年 RAV4 2.5 Hybrid 旗艦 環景 通風椅 實跑4.8萬公里 一手車',
+        year: 2021,
+        mileage: 4.8,
+        cc: 2487,
+        price: 86.8,
+        body: 'SUV休旅車',
+        color: '白色',
+        views: 518,
+        status: '在售中',
+        colorHex: 'from-orange-700 to-amber-900',
+        condition: '原廠保養紀錄完整，大電池健康度檢測正常，全車原鈑件無事故泡水，立約保證。'
+      },
+      {
+        id: 'C3',
+        dealerId: 'D2',
+        brand: 'Honda',
+        title: '22年 CR-V 1.5 VTi-S 感應電動尾門 Honda SENSING 全景天窗',
+        year: 2022,
+        mileage: 3.5,
+        cc: 1498,
+        price: 78.5,
+        body: 'SUV休旅車',
+        color: '白色',
+        views: 289,
+        status: '在售中',
+        colorHex: 'from-teal-800 to-emerald-950',
+        condition: '中彰投在地一手家庭自用車，內裝無菸味，右前輪弧有輕微擦傷已誠實標示，可配合任何第三方萊因或公會鑑定。'
+      },
+      {
+        id: 'C4',
+        dealerId: 'D3',
+        brand: 'Lexus',
+        title: '20年 NX200 菁英版 電動尾門 ACC主動跟車 原廠保養 實跑5.9萬',
+        year: 2020,
+        mileage: 5.9,
+        cc: 1987,
+        price: 98.0,
+        body: 'SUV休旅車',
+        color: '灰色',
+        views: 410,
+        status: '在售中',
+        colorHex: 'from-zinc-700 to-neutral-900',
+        condition: '全車原漆原鈑件，底盤結構完整無鏽蝕，輪胎八成新，歡迎預約至西屯展間頂高看底盤。'
+      },
+      {
+        id: 'C5',
+        dealerId: 'D2',
+        brand: 'Škoda',
+        title: '19年 Kodiaq 1.4 TSI 豪華菁英版 七人座 360環景 電動尾門',
+        year: 2019,
+        mileage: 7.4,
+        cc: 1395,
+        price: 69.8,
+        body: 'SUV休旅車',
+        color: '藍色',
+        views: 195,
+        status: '在售中',
+        colorHex: 'from-blue-800 to-indigo-950',
+        condition: '七人座大空間，變速箱離合器已於原廠完成預防性保養更新，附完整工單證明。'
+      },
+      {
+        id: 'C6',
+        dealerId: 'D3',
+        brand: 'BMW',
+        title: '20年 320i M Sport 智慧雷射頭燈 5AU半自動駕駛 哈曼卡頓音響',
+        year: 2020,
+        mileage: 5.1,
+        cc: 1998,
+        price: 129.0,
+        body: '轎車',
+        color: '白色',
+        views: 376,
+        status: '在售中',
+        colorHex: 'from-sky-800 to-slate-900',
+        condition: '總代理車源，全車 M 套件，無改裝無惡操，引擎室與底盤乾爽無滲油，支援全額貸或車換車。'
+      },
+      {
+        id: 'C7',
+        dealerId: 'D1',
+        brand: 'Mazda',
+        title: '18年 Mazda3 五門尊榮進化版 盲點 抬頭顯示器 實跑6.8萬 代步首選',
+        year: 2018,
+        mileage: 6.8,
+        cc: 1998,
+        price: 44.8,
+        body: '掀背車',
+        color: '灰色',
+        views: 462,
+        status: '在售中',
+        colorHex: 'from-stone-700 to-stone-900',
+        condition: '50萬以下高CP值首選，後保桿曾因停車擦碰更換原廠新品，車體大樑與水箱架皆原封未動。'
+      },
+      {
+        id: 'C8',
+        dealerId: 'D3',
+        brand: 'Porsche',
+        title: '21年 Cayenne Coupe 跑車計時套件 全景天窗 21吋輪圈 總代理',
+        year: 2021,
+        mileage: 3.9,
+        cc: 2995,
+        price: 268.0,
+        body: '雙門跑車',
+        color: '黑色',
+        views: 625,
+        status: '在售中',
+        colorHex: 'from-neutral-800 to-black',
+        condition: '總代理一手車，全車犀牛皮包膜保護，原廠保固紀錄齊全，可配合德國萊因全面檢測。'
+      }
+    ];
+
+    const brandList = ['Toyota', 'Honda', 'M-Benz', 'Lexus', 'Mazda', 'Nissan', 'BMW', 'Subaru', 'Ford', 'Škoda', 'Porsche'];
+    const priceRanges = [
+      { id: 'ALL', label: '不限價格' },
+      { id: 'UNDER50', label: '50萬以下' },
+      { id: '50_80', label: '50–80萬' },
+      { id: '80_150', label: '80–150萬' },
+      { id: 'OVER150', label: '150萬以上' }
+    ];
+
+    let state = {
+      selectedDealer: 'ALL',
+      selectedBrand: '',
+      selectedPrice: 'ALL',
+      favorites: []
+    };
+
+    // =========================================================================
+    // 初始化渲染
+    // =========================================================================
+    function init() {
+      renderDealerPills();
+      renderBrandButtons();
+      renderPricePills();
+      applyFilters();
+    }
+
+    // 頂部雙模式切換
+    function switchMainTab(mode) {
+      const protoEl = document.getElementById('viewPrototype');
+      const quoteEl = document.getElementById('viewQuote');
+      const btnProto = document.getElementById('tabBtnProto');
+      const btnQuote = document.getElementById('tabBtnQuote');
+
+      if (mode === 'proto') {
+        protoEl.classList.remove('hidden');
+        quoteEl.classList.add('hidden');
+        btnProto.className = 'px-3 py-2 rounded-lg text-xs sm:text-sm font-bold bg-[#e85d04] text-white shadow transition whitespace-nowrap cursor-pointer';
+        btnQuote.className = 'px-3 py-2 rounded-lg text-xs sm:text-sm font-bold bg-gray-800 text-gray-300 hover:bg-gray-700 transition whitespace-nowrap cursor-pointer';
+      } else {
+        protoEl.classList.add('hidden');
+        quoteEl.classList.remove('hidden');
+        btnQuote.className = 'px-3 py-2 rounded-lg text-xs sm:text-sm font-bold bg-[#e85d04] text-white shadow transition whitespace-nowrap cursor-pointer';
+        btnProto.className = 'px-3 py-2 rounded-lg text-xs sm:text-sm font-bold bg-gray-800 text-gray-300 hover:bg-gray-700 transition whitespace-nowrap cursor-pointer';
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 渲染車商切換按鈕（母網站 vs 單一車商獨立網頁）
+    function renderDealerPills() {
+      const container = document.getElementById('dealerPillsContainer');
+      let html = `
+        <button
+          type="button"
+          onclick="selectDealer('ALL')"
+          class="px-3.5 py-2 rounded-full text-xs sm:text-sm font-bold border transition whitespace-nowrap cursor-pointer ${
+            state.selectedDealer === 'ALL'
+              ? 'bg-[#e85d04] text-white border-[#e85d04] shadow-sm'
+              : 'bg-gray-50 text-gray-700 border-gray-200 hover:border-[#e85d04]'
+          }"
+        >
+          🌐 全部車商（母網站全站車源）
+        </button>
+      `;
+
+      dealers.forEach(d => {
+        const active = state.selectedDealer === d.id;
+        html += `
+          <button
+            type="button"
+            onclick="selectDealer('${d.id}')"
+            class="px-3.5 py-2 rounded-full text-xs sm:text-sm font-bold border transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+              active
+                ? 'bg-gray-900 text-white border-gray-900 shadow-sm'
+                : 'bg-white text-gray-800 border-gray-200 hover:border-gray-900'
+            }"
+          >
+            <span class="w-5 h-5 rounded-full text-[11px] font-black flex items-center justify-center ${
+              active ? 'bg-[#e85d04] text-white' : 'bg-emerald-700 text-white'
+            }">${d.code}</span>
+            <span>${d.name}</span>
+          </button>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    // 切換到某間車商的「模組化專屬網頁」或返回「母網站」
+    function selectDealer(dealerId) {
+      state.selectedDealer = dealerId;
+      renderDealerPills();
+
+      const bannerContent = document.getElementById('bannerContent');
+      const bannerAction = document.getElementById('bannerAction');
+      const listHeading = document.getElementById('listHeading');
+
+      if (dealerId === 'ALL') {
+        bannerContent.innerHTML = `
+          <div class="inline-flex items-center gap-2 bg-white/15 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-orange-300 mb-2">
+            <span>📢 母網站全站視角</span>
+            <span>•</span>
+            <span>多車商資料庫即時串接中</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-black tracking-tight">2027 台中新車大展籌備中｜在地公會嚴選好車</h2>
+          <p class="text-xs sm:text-sm text-gray-300 mt-1.5">
+            整合大台中嚴選車商庫存，每台車皆提供真實車況與細節揭露，直接點擊下方車商可體驗「單一車商模組化專屬網頁」。
+          </p>
+        `;
+        bannerAction.innerHTML = `
+          <button type="button" onclick="openAdminModal()" class="px-4 py-2.5 rounded-xl bg-[#e85d04] hover:bg-orange-500 text-white text-sm font-bold shadow-lg transition cursor-pointer">
+            ➕ 模擬車商上架／新增車商
+          </button>
+        `;
+        listHeading.textContent = '全站嚴選在售車源';
+      } else {
+        const dealer = dealers.find(d => d.id === dealerId);
+        bannerContent.innerHTML = `
+          <div class="inline-flex items-center gap-2 bg-emerald-500/20 border border-emerald-400/30 px-3 py-1 rounded-full text-xs font-bold text-emerald-300 mb-2">
+            <span>🏪 單一車商模組化專屬網頁</span>
+            <span>•</span>
+            <span>${dealer.badge}</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-black tracking-tight">${dealer.name}｜專屬線上展間</h2>
+          <p class="text-xs sm:text-sm text-gray-200 mt-1.5">
+            📍 ${dealer.address}　｜　📞 賞車專線：${dealer.phone}
+          </p>
+        `;
+        bannerAction.innerHTML = `
+          <button type="button" onclick="selectDealer('ALL')" class="px-4 py-2.5 rounded-xl bg-white text-gray-900 hover:bg-gray-100 text-sm font-bold shadow transition cursor-pointer">
+            ← 返回母網站全站車源
+          </button>
+        `;
+        listHeading.textContent = `${dealer.name} 在售車輛清單`;
+      }
+
+      applyFilters();
+    }
+
+    // 渲染品牌按鈕
+    function renderBrandButtons() {
+      const container = document.getElementById('brandGrid');
+      container.innerHTML = brandList.map(b => {
+        const active = state.selectedBrand === b;
+        const shortCode = b.replace('-', '').slice(0, 2).toUpperCase();
+        return `
+          <button
+            type="button"
+            onclick="toggleBrand('${b}')"
+            class="p-2 rounded-xl border text-center transition flex flex-col items-center justify-center gap-1 cursor-pointer ${
+              active
+                ? 'border-[#e85d04] bg-orange-50 text-[#e85d04] font-bold shadow-xs'
+                : 'border-gray-200 bg-white hover:border-gray-400 text-gray-700'
+            }"
+          >
+            <span class="w-8 h-8 rounded-full border ${active ? 'border-[#e85d04] bg-[#e85d04] text-white' : 'border-gray-300 text-gray-800'} text-xs font-black flex items-center justify-center">
+              ${shortCode}
+            </span>
+            <span class="text-[11px] truncate w-full">${b}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function toggleBrand(brand) {
+      state.selectedBrand = state.selectedBrand === brand ? '' : brand;
+      renderBrandButtons();
+      applyFilters();
+    }
+
+    // 渲染預算區間按鈕
+    function renderPricePills() {
+      const container = document.getElementById('pricePills');
+      container.innerHTML = priceRanges.map(p => {
+        const active = state.selectedPrice === p.id;
+        return `
+          <button
+            type="button"
+            onclick="setPriceRange('${p.id}')"
+            class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold border transition cursor-pointer ${
+              active
+                ? 'bg-[#e85d04] text-white border-[#e85d04]'
+                : 'bg-gray-100 text-gray-700 border-transparent hover:bg-gray-200'
+            }"
+          >
+            ${p.label}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function setPriceRange(id) {
+      state.selectedPrice = id;
+      renderPricePills();
+      applyFilters();
+    }
+
+    function resetFilters() {
+      state.selectedBrand = '';
+      state.selectedPrice = 'ALL';
+      document.getElementById('searchInput').value = '';
+      document.getElementById('filterBody').value = '';
+      document.getElementById('filterMileage').value = '';
+      document.getElementById('filterYear').value = '';
+      document.getElementById('filterColor').value = '';
+      renderBrandButtons();
+      renderPricePills();
+      applyFilters();
+      showToast('已清除所有篩選條件');
+    }
+
+    // 核心篩選邏輯
+    function applyFilters() {
+      const kw = document.getElementById('searchInput').value.trim().toLowerCase();
+      const bodyType = document.getElementById('filterBody').value;
+      const maxMileage = document.getElementById('filterMileage').value;
+      const minYear = document.getElementById('filterYear').value;
+      const color = document.getElementById('filterColor').value;
+
+      const filtered = cars.filter(car => {
+        if (state.selectedDealer !== 'ALL' && car.dealerId !== state.selectedDealer) return false;
+        if (state.selectedBrand && car.brand !== state.selectedBrand) return false;
+        if (kw && !(car.title.toLowerCase().includes(kw) || car.brand.toLowerCase().includes(kw))) return false;
+        if (bodyType && car.body !== bodyType) return false;
+        if (color && car.color !== color) return false;
+        if (minYear && car.year < parseInt(minYear, 10)) return false;
+
+        if (maxMileage) {
+          const m = parseFloat(maxMileage);
+          if (m === 999) {
+            if (car.mileage <= 10) return false;
+          } else if (car.mileage > m) {
+            return false;
+          }
+        }
+
+        if (state.selectedPrice === 'UNDER50' && car.price >= 50) return false;
+        if (state.selectedPrice === '50_80' && (car.price < 50 || car.price > 80)) return false;
+        if (state.selectedPrice === '80_150' && (car.price <= 80 || car.price > 150)) return false;
+        if (state.selectedPrice === 'OVER150' && car.price <= 150) return false;
+
+        return true;
+      });
+
+      renderCarGrid(filtered);
+    }
+
+    // 渲染車輛卡片列表
+    function renderCarGrid(list) {
+      const grid = document.getElementById('carGrid');
+      const countBadge = document.getElementById('carCountBadge');
+      const searchInput = document.getElementById('searchInput');
+
+      countBadge.textContent = `架上共有 ${list.length} 台車`;
+      searchInput.placeholder = `架上共有 ${cars.length} 台車，輸入品牌或車型搜尋`;
+
+      if (list.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full bg-white rounded-2xl border border-gray-200 p-10 text-center space-y-3">
+            <div class="text-3xl">🔍</div>
+            <div class="font-bold text-gray-800">目前沒有符合條件的車輛</div>
+            <p class="text-xs text-gray-500">試試看清除部分篩選條件，或點右上角「車商後台模擬」上架新車！</p>
+            <button type="button" onclick="resetFilters()" class="px-4 py-2 rounded-xl bg-[#e85d04] text-white text-xs font-bold cursor-pointer">
+              重置篩選條件
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = list.map(car => {
+        const dealer = dealers.find(d => d.id === car.dealerId) || dealers[0];
+        const isFav = state.favorites.includes(car.id);
+        const isSold = car.status === '已售出';
+
+        return `
+          <article class="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
+            <div>
+              <!-- 車輛視覺封面（無外部破圖風險的質感向量車輛卡片） -->
+              <div onclick="openCarDetail('${car.id}')" class="relative h-44 bg-gradient-to-br ${car.colorHex} p-4 text-white flex flex-col justify-between cursor-pointer">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="px-2.5 py-1 rounded-md text-[11px] font-extrabold bg-black/40 backdrop-blur border border-white/15">
+                    ${car.brand} • ${car.body}
+                  </span>
+                  <span class="px-2.5 py-1 rounded-md text-[11px] font-bold ${isSold ? 'bg-gray-600' : 'bg-emerald-600'}">
+                    ${car.status}
+                  </span>
+                </div>
+
+                <!-- 簡潔車輛剪影 SVG -->
+                <div class="my-auto flex items-center justify-center opacity-30">
+                  <svg class="w-36 h-16" viewBox="0 0 200 70" fill="currentColor">
+                    <path d="M22 48 L34 26 Q42 16 62 16 L124 16 Q142 16 154 28 L178 34 Q188 37 188 48 L188 54 L168 54 A16 16 0 0 1 136 54 L68 54 A16 16 0 0 1 36 54 L16 54 L16 48 Z"/>
+                    <circle cx="52" cy="54" r="11"/>
+                    <circle cx="152" cy="54" r="11"/>
+                  </svg>
+                </div>
+
+                <div class="flex items-center justify-between text-[11px] text-gray-200">
+                  <span>👁 瀏覽人次：${car.views}</span>
+                  <span class="underline">點擊看車況細節 →</span>
+                </div>
+              </div>
+
+              <!-- 車輛文字資訊 -->
+              <div class="p-4 space-y-2.5">
+                <div class="flex items-center justify-between gap-2">
+                  <button
+                    type="button"
+                    onclick="selectDealer('${dealer.id}')"
+                    class="inline-flex items-center gap-1 text-xs font-bold text-[#e85d04] bg-orange-50 hover:bg-orange-100 px-2.5 py-1 rounded-md transition cursor-pointer"
+                    title="點擊進入此車商專屬網頁"
+                  >
+                    <span>🏪 ${dealer.name}</span>
+                  </button>
+                  <span class="text-xs text-gray-500">${car.year}年 ｜ ${car.mileage}萬km ｜ ${car.cc}cc</span>
+                </div>
+
+                <h4 onclick="openCarDetail('${car.id}')" class="font-bold text-gray-900 text-sm sm:text-base leading-snug line-clamp-2 cursor-pointer hover:text-[#e85d04]">
+                  ${car.title}
+                </h4>
+
+                <p class="text-xs text-gray-500 bg-gray-50 p-2 rounded-lg line-clamp-2">
+                  🔍 ${car.condition}
+                </p>
+              </div>
+            </div>
+
+            <!-- 底部價格與互動按鈕 -->
+            <div class="px-4 pb-4 pt-2 border-t border-gray-100 flex items-center justify-between gap-2">
+              <div>
+                <span class="text-[11px] text-gray-400 block">實車售價</span>
+                <span class="text-xl font-black text-[#e85d04]">NT$ ${car.price} <span class="text-xs font-bold">萬</span></span>
+              </div>
+
+              <div class="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onclick="toggleFavorite('${car.id}')"
+                  class="p-2.5 rounded-xl border ${isFav ? 'border-red-300 bg-red-50 text-red-600' : 'border-gray-200 text-gray-500 hover:bg-gray-50'} text-xs font-bold transition cursor-pointer"
+                  title="加入汽車收藏清單"
+                >
+                  ${isFav ? '❤️' : '🤍'}
+                </button>
+                <button
+                  type="button"
+                  onclick="toggleCarStatus('${car.id}')"
+                  class="px-2.5 py-2.5 rounded-xl border border-gray-200 hover:bg-gray-100 text-gray-700 text-xs font-bold transition cursor-pointer"
+                  title="模擬車商切換在售/已售狀態"
+                >
+                  切換狀態
+                </button>
+                <button
+                  type="button"
+                  onclick="openCarDetail('${car.id}')"
+                  class="px-3.5 py-2.5 rounded-xl bg-[#e85d04] hover:bg-[#c44d03] text-white text-xs font-bold shadow-xs transition cursor-pointer"
+                >
+                  立即洽詢
+                </button>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    // 單車詳情視窗
+    function openCarDetail(carId) {
+      const car = cars.find(c => c.id === carId);
+      if (!car) return;
+      car.views += 1;
+      applyFilters();
+
+      const dealer = dealers.find(d => d.id === car.dealerId) || dealers[0];
+      document.getElementById('modalDealerTag').textContent = `${dealer.name}（${dealer.badge}）`;
+      document.getElementById('modalCarTitle').textContent = car.title;
+      document.getElementById('modalCarBrand').textContent = `${car.brand} • ${car.body} • ${car.color}`;
+      document.getElementById('modalCarSpecs').textContent = `${car.year}年出廠 ｜ 里程 ${car.mileage} 萬km ｜ 排氣量 ${car.cc} cc`;
+      document.getElementById('modalCarPrice').textContent = `NT$ ${car.price} 萬`;
+      document.getElementById('modalCarCondition').textContent = car.condition;
+      document.getElementById('modalDealerInfo').textContent = `賞車地址：${dealer.address} ｜ 電話：${dealer.phone}`;
+
+      const goBtn = document.getElementById('modalGoStoreBtn');
+      goBtn.onclick = () => {
+        closeModal('carDetailModal');
+        selectDealer(dealer.id);
+      };
+
+      document.getElementById('carDetailModal').classList.remove('hidden');
+    }
+
+    function simulateInquiry() {
+      closeModal('carDetailModal');
+      showToast('已發送賞車詢問給客服調度中心，將為您確認實車在店並提供 Google 定位！');
+    }
+
+    // 收藏功能
+    function toggleFavorite(carId) {
+      const idx = state.favorites.indexOf(carId);
+      if (idx === -1) {
+        state.favorites.push(carId);
+        showToast('已加入汽車收藏清單');
+      } else {
+        state.favorites.splice(idx, 1);
+        showToast('已從收藏清單移除');
+      }
+      document.getElementById('favCountBadge').textContent = state.favorites.length;
+      applyFilters();
+    }
+
+    function openFavoritesModal() {
+      const body = document.getElementById('infoModalBody');
+      document.getElementById('infoModalTitle').textContent = `❤️ 我的汽車收藏清單（共 ${state.favorites.length} 台）`;
+      if (state.favorites.length === 0) {
+        body.innerHTML = '<p class="text-gray-500 py-4 text-center">目前尚未收藏任何車輛，點擊車輛卡片上的「🤍」即可加入比較。</p>';
+      } else {
+        const favCars = cars.filter(c => state.favorites.includes(c.id));
+        body.innerHTML = favCars.map(c => `
+          <div class="p-3 rounded-xl border border-gray-200 flex items-center justify-between gap-2">
+            <div>
+              <div class="font-bold text-gray-900 text-xs sm:text-sm">${c.title}</div>
+              <div class="text-xs text-[#e85d04] font-bold mt-0.5">NT$ ${c.price} 萬</div>
+            </div>
+            <button type="button" onclick="closeModal('infoModal'); openCarDetail('${c.id}')" class="px-3 py-1.5 rounded-lg bg-gray-900 text-white text-xs font-bold shrink-0 cursor-pointer">查看</button>
+          </div>
+        `).join('');
+      }
+      document.getElementById('infoModal').classList.remove('hidden');
+    }
+
+    // 切換在售 / 已售狀態（展示母網站與車商同步更新）
+    function toggleCarStatus(carId) {
+      const car = cars.find(c => c.id === carId);
+      if (!car) return;
+      car.status = car.status === '在售中' ? '已售出' : '在售中';
+      applyFilters();
+      showToast(`狀態已同步更新為「${car.status}」（母網站與車商專頁即時連動）`);
+    }
+
+    // 車商 / 公會後台模擬器
+    function openAdminModal() {
+      const select = document.getElementById('newCarDealer');
+      select.innerHTML = dealers.map(d => `<option value="${d.id}">${d.name}（專屬店舖頁）</option>`).join('');
+      document.getElementById('adminModal').classList.remove('hidden');
+    }
+
+    function handleAddCar() {
+      const dealerId = document.getElementById('newCarDealer').value;
+      const brand = document.getElementById('newCarBrand').value;
+      const title = document.getElementById('newCarTitle').value.trim();
+      const price = parseFloat(document.getElementById('newCarPrice').value);
+      const year = parseInt(document.getElementById('newCarYear').value, 10) || 2022;
+      const mileage = parseFloat(document.getElementById('newCarMileage').value) || 3.5;
+      const body = document.getElementById('newCarBody').value;
+      const condition = document.getElementById('newCarCondition').value.trim() || '實車在店、全車原鈑件，附公會嚴選車況檢驗說明。';
+
+      if (!title || isNaN(price)) {
+        showToast('請填寫車型標題與售價（萬元）');
+        return;
+      }
+
+      const newCar = {
+        id: 'C' + Date.now(),
+        dealerId,
+        brand,
+        title,
+        year,
+        mileage,
+        cc: 1998,
+        price,
+        body,
+        color: '白色',
+        views: 1,
+        status: '在售中',
+        colorHex: 'from-orange-700 to-slate-900',
+        condition
+      };
+
+      cars.unshift(newCar);
+      document.getElementById('newCarTitle').value = '';
+      document.getElementById('newCarPrice').value = '';
+      closeModal('adminModal');
+      applyFilters();
+      showToast('新車已上架！母網站與該車商專屬網頁已同步顯示。');
+    }
+
+    function handleAddDealer() {
+      const name = document.getElementById('newDealerName').value.trim();
+      const phone = document.getElementById('newDealerPhone').value.trim() || '04-2698-5909';
+      const address = document.getElementById('newDealerAddr').value.trim() || '台中市大肚區';
+
+      if (!name) {
+        showToast('請輸入新車商名稱');
+        return;
+      }
+
+      const nextCode = String.fromCharCode(65 + dealers.length);
+      const newDealer = {
+        id: 'D' + Date.now(),
+        code: nextCode,
+        name,
+        phone,
+        address,
+        badge: '新開通模組化車商'
+      };
+
+      dealers.push(newDealer);
+      document.getElementById('newDealerName').value = '';
+      renderDealerPills();
+      closeModal('adminModal');
+      selectDealer(newDealer.id);
+      showToast(`已開通「${name}」並自動生成模組化專屬網頁！`);
+    }
+
+    function exportDatabaseBackup() {
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        platform: 'GOGO換車站｜大台中好車網',
+        dealers,
+        cars
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'tgcar-database-backup.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('已匯出全站資料庫備份檔（tgcar-database-backup.json）');
+    }
+
+    // 服務項目 / 我要賣車資訊彈窗
+    function openInfoModal(type) {
+      const titleEl = document.getElementById('infoModalTitle');
+      const bodyEl = document.getElementById('infoModalBody');
+
+      if (type === 'services') {
+        titleEl.textContent = '🛡️ 平台六大服務項目（完整承接原站架構）';
+        bodyEl.innerHTML = `
+          <div class="grid grid-cols-2 gap-2.5 text-xs sm:text-sm">
+            <div class="p-3 rounded-xl bg-gray-50 border border-gray-200"><strong>1. 購車流程：</strong>線上選車 → 客服確認車況 → 現場賞車簽約</div>
+            <div class="p-3 rounded-xl bg-gray-50 border border-gray-200"><strong>2. 車輛鑑定：</strong>配合第三方認證與公會把關，拒絕泡水事故車</div>
+            <div class="p-3 rounded-xl bg-gray-50 border border-gray-200"><strong>3. 汽車保險：</strong>強制險、第三人責任險與車體險一站式試算</div>
+            <div class="p-3 rounded-xl bg-gray-50 border border-gray-200"><strong>4. 汽車貸款：</strong>銀行低利車貸、原車融資與快速審核評估</div>
+            <div class="p-3 rounded-xl bg-gray-50 border border-gray-200"><strong>5. 汽車維修：</strong>大台中合作保修廠售後保養與底盤檢修</div>
+            <div class="p-3 rounded-xl bg-gray-50 border border-gray-200"><strong>6. 寵物公益：</strong>結合在地公益活動，打造有溫度的車商聯盟</div>
+          </div>
+        `;
+      } else if (type === 'sell') {
+        titleEl.textContent = '💰 我要賣車／高價收購與車換車線上估價';
+        bodyEl.innerHTML = `
+          <p class="text-xs text-gray-500">填寫愛車基本資料，由陳店長與在地公會嚴選車商為您提供免費行情評估：</p>
+          <div class="space-y-2.5">
+            <input type="text" placeholder="愛車品牌與車型（例：2019 Toyota Altis）" class="w-full p-2.5 rounded-xl border border-gray-300 text-sm" />
+            <input type="text" placeholder="出廠年份與大約里程" class="w-full p-2.5 rounded-xl border border-gray-300 text-sm" />
+            <input type="text" placeholder="您的稱呼與聯絡電話 / LINE ID" class="w-full p-2.5 rounded-xl border border-gray-300 text-sm" />
+            <button type="button" onclick="closeModal('infoModal'); showToast('估價需求已送出！專員將於營業時間內與您聯繫。')" class="w-full py-2.5 rounded-xl bg-[#e85d04] text-white font-bold text-sm cursor-pointer">送出免費估價申請</button>
+          </div>
+        `;
+      } else {
+        titleEl.textContent = '🎬 影音賞車 ＆ 最新資訊專區';
+        bodyEl.innerHTML = `
+          <ul class="space-y-2 text-xs sm:text-sm list-disc pl-5">
+            <li><strong>車款買賣 QA：</strong>買中古車如何看螺絲、底盤與避免低價釣魚陷阱？</li>
+            <li><strong>中古車成交案例：</strong>大台中在地車友真實交車紀錄與車況驗車報告分享。</li>
+            <li><strong>台中優質車商推薦：</strong>公會嚴選車行專訪與展場第一手資訊。</li>
+          </ul>
+        `;
+      }
+
+      document.getElementById('infoModal').classList.remove('hidden');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    function scrollToDealers() {
+      document.getElementById('dealerSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // 列印 / 匯出 PDF（自動切到確認書分頁並啟動列印）
+    function handlePrintPDF() {
+      switchMainTab('quote');
+      showToast('已切換至正式確認書，請在列印視窗選擇「另存為 PDF」');
+      setTimeout(() => {
+        window.print();
+      }, 200);
+    }
+
+    function showToast(msg) {
+      const box = document.getElementById('toastBox');
+      document.getElementById('toastText').textContent = msg;
+      box.classList.remove('hidden');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(hideToast, 3500);
+    }
+
+    function hideToast() {
+      document.getElementById('toastBox').classList.add('hidden');
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
