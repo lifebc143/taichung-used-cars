@@ -137,6 +137,25 @@
   .line-qr img { width: 180px; height: auto; display: block; }
   .line-qr figcaption { color: #0e3b34; font-size: 15px; font-weight: 700; padding-top: 8px; }
   .fine { margin-top: 14px; font-size: 13px; color: #9db8b1; }
+
+  .filter-bar { background: #fff; border: 1px solid #e5ddcb; border-radius: 14px; padding: 16px 18px; margin: 14px 0 6px; }
+  .filter-group { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .filter-group:last-child { margin-bottom: 0; }
+  .filter-label { font-size: 15px; font-weight: 700; color: #0e3b34; margin-right: 2px; white-space: nowrap; }
+  .chip { background: #f7f3ea; color: #0e3b34; border: 1px solid #e5ddcb; border-radius: 999px; padding: 6px 14px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .chip.active { background: #0e3b34; color: #fff; border-color: #0e3b34; }
+  .sort-select { background: #f7f3ea; color: #0e3b34; border: 1px solid #e5ddcb; border-radius: 999px; padding: 6px 10px; font-size: 14px; font-weight: 700; font-family: inherit; }
+  .filter-meta { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #efe9db; padding-top: 10px; margin-top: 4px; }
+  #filter-count { font-size: 15px; font-weight: 700; color: #0e3b34; }
+  .reset-btn { background: none; border: none; color: #e86a33; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; padding: 4px 6px; }
+  .check-tip { background: #fdf3ec; border: 1px solid #f3c9a8; border-left: 4px solid #e86a33; border-radius: 8px; padding: 10px 14px; margin-top: 16px; font-size: 14px; color: #444; }
+  .tpl-boxes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+  @media (max-width: 600px) { .tpl-boxes { grid-template-columns: 1fr; } }
+  .tpl-box { background: #f7f3ea; border: 1px solid #e5ddcb; border-radius: 12px; padding: 14px 16px; }
+  .tpl-title { font-size: 15px; font-weight: 700; color: #0e3b34; margin-bottom: 6px; }
+  .tpl-text { font-size: 15px; color: #222; }
+  .copy-tpl { background: #0e3b34; color: #fff; border: none; border-radius: 999px; padding: 8px 18px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 10px; }
+  .copy-tpl:disabled { opacity: .7; cursor: default; }
 </style>
 </head>
 <body>
@@ -190,6 +209,19 @@
       <li><strong>傳送資訊：</strong>看車請說車款與方便的看車時段；賣車請傳車款年份、里程數、外觀與內裝照片 4～6 張</li>
       <li><strong>專人安排：</strong>確認時間後安排現場賞車或台中市區送車到府；賣車由專人回覆報價</li>
       </ol>
+
+      <div class="tpl-boxes">
+        <div class="tpl-box">
+          <div class="tpl-title">看車範本</div>
+          <p class="tpl-text" id="tpl-view">你好，我想預約看車。車款：＿＿，方便時段：＿＿。請問這台車還在嗎？</p>
+          <button type="button" class="copy-tpl" data-target="tpl-view">複製範本</button>
+        </div>
+        <div class="tpl-box">
+          <div class="tpl-title">賣車範本</div>
+          <p class="tpl-text" id="tpl-sell">你好，我想賣車估價。車款年份：＿＿，里程數：＿＿，照片稍後傳給你。</p>
+          <button type="button" class="copy-tpl" data-target="tpl-sell">複製範本</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -204,7 +236,48 @@
 
   <h2 class="section-title" id="cars">現在的車</h2>
 
-  <article class="car" id="car-cayenne">
+  <div class="filter-bar" id="filter-bar">
+    <div class="filter-group" data-filter="price">
+      <span class="filter-label">預算</span>
+      <button type="button" class="chip active" data-value="all">全部</button>
+      <button type="button" class="chip" data-value="lt50">50萬以下</button>
+      <button type="button" class="chip" data-value="50-100">50–100萬</button>
+      <button type="button" class="chip" data-value="100-200">100–200萬</button>
+      <button type="button" class="chip" data-value="gt200">200萬以上</button>
+    </div>
+    <div class="filter-group" data-filter="body">
+      <span class="filter-label">車身型式</span>
+      <button type="button" class="chip active" data-value="all">全部</button>
+      <button type="button" class="chip" data-value="SUV">SUV</button>
+      <button type="button" class="chip" data-value="房車">房車</button>
+      <button type="button" class="chip" data-value="MPV">MPV</button>
+      <button type="button" class="chip" data-value="旅行車">旅行車</button>
+      <button type="button" class="chip" data-value="掀背">掀背</button>
+    </div>
+    <div class="filter-group" data-filter="power">
+      <span class="filter-label">動力</span>
+      <button type="button" class="chip active" data-value="all">全部</button>
+      <button type="button" class="chip" data-value="汽油">汽油</button>
+      <button type="button" class="chip" data-value="油電">油電</button>
+      <button type="button" class="chip" data-value="柴油">柴油</button>
+      <button type="button" class="chip" data-value="純電">純電</button>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label" for="sort-select">排序</label>
+      <select id="sort-select" class="sort-select">
+        <option value="newest">最新上架</option>
+        <option value="price-asc">價格低→高</option>
+        <option value="price-desc">價格高→低</option>
+        <option value="km-asc">里程低→高</option>
+      </select>
+    </div>
+    <div class="filter-meta">
+      <span id="filter-count">共 17 台</span>
+      <button type="button" id="filter-reset" class="reset-btn">清除篩選</button>
+    </div>
+  </div>
+
+  <article class="car" id="car-cayenne" data-price="588000" data-body="SUV" data-power="柴油" data-km="161514" data-order="1">
     <div class="car-head">
       <h3>2015 Porsche Cayenne Diesel</h3>
       <div class="sub">3.0L V6 柴油渦輪・白色・里程表實拍 161,514 公里</div>
@@ -250,6 +323,7 @@
         <b>HOT認證車：</b>HOT 大聯盟認證，180 項查驗、三大保證、五大保固（引擎、變速箱、方向機、啟動馬達、發電機，保固 1 年／2 萬公里）。
       </div>
       <p class="car-note">預算 60 萬內入手保時捷豪華休旅，3.0L V6 柴油大扭力（59.1 kgm）爬坡滿載輕鬆，平均油耗 12.1 km/L 兼顧日常實用性。</p>
+      <p class="check-tip">建議現場確認：底盤、耗材與冷氣</p>
       <div class="links">
         <a class="line-ask" href="https://line.me/R/msg/text/?%E4%BD%A0%E5%A5%BD%EF%BC%8C%E6%88%91%E6%83%B3%E5%95%8F%E9%80%99%E5%8F%B0%202015%20Porsche%20Cayenne%20Diesel%EF%BC%8C%E8%B3%A3%E5%83%B9%20NT%24588%2C000%EF%BC%8C%E9%82%84%E5%9C%A8%E5%97%8E%EF%BC%9F%20%E7%B6%B2%E7%AB%99%EF%BC%9Ahttps%3A%2F%2Flifebc143.github.io%2Ftaichung-used-cars%2F" target="_blank" rel="noopener">LINE 問這台車</a>
         <a href="https://www.facebook.com/marketplace/item/1684755509729209" target="_blank" rel="noopener">臉書刊登</a>
@@ -258,7 +332,7 @@
       </div>
     </div>
   </article>
-  <article class="car" id="car-model3eap">
+  <article class="car" id="car-model3eap" data-price="1190000" data-body="房車" data-power="純電" data-km="93159" data-order="2">
     <div class="car-head">
       <h3>2022 Tesla Model 3 Long Range EAP</h3>
       <div class="sub">雙馬達四驅・深灰色・螢幕顯示 93,159 公里</div>
@@ -300,6 +374,7 @@
       <div class="hot-box">
         <b>實拍確認：</b>實車實拍，配備以照片為準。螢幕顯示 93,159 公里。
       </div>
+      <p class="check-tip">建議現場確認：電池健康度、充電功能</p>
       <div class="links">
         <a class="line-ask" href="https://line.me/R/msg/text/?%E4%BD%A0%E5%A5%BD%EF%BC%8C%E6%88%91%E6%83%B3%E5%95%8F%E9%80%99%E5%8F%B0%202022%20Tesla%20Model%203%20Long%20Range%20EAP%EF%BC%8C%E8%B3%A3%E5%83%B9%20NT%241%2C190%2C000%EF%BC%8C%E9%82%84%E5%9C%A8%E5%97%8E%EF%BC%9F%20%E7%B6%B2%E7%AB%99%EF%BC%9Ahttps%3A%2F%2Flifebc143.github.io%2Ftaichung-used-cars%2F" target="_blank" rel="noopener">LINE 問這台車</a>
         <a href="https://www.facebook.com/marketplace/item/2214924002763593" target="_blank" rel="noopener">臉書刊登</a>
@@ -308,7 +383,7 @@
       </div>
     </div>
   </article>
-  <article class="car" id="car-318i">
+  <article class="car" id="car-318i" data-price="988000" data-body="房車" data-power="汽油" data-km="41789" data-order="3">
     <div class="car-head">
       <h3>2021 BMW 318i Luxury</h3>
       <div class="sub">入門豪華房車・白色・里程表實拍 41,789 公里</div>
@@ -356,7 +431,7 @@
     </div>
   </article>
 
-  <article class="car" id="car-modelx">
+  <article class="car" id="car-modelx" data-price="1780000" data-body="SUV" data-power="純電" data-km="73850" data-order="4">
     <div class="car-head">
       <h3>2019 Tesla Model X Performance</h3>
       <div class="sub">純電休旅・深藍色・螢幕顯示 73,850 公里</div>
@@ -407,6 +482,7 @@
       <div class="hot-box">
         <b>HOT 認證車：</b>180 項查驗，<b>三大保證</b>（無泡水、無重大事故、無引擎變造，不符原價買回），<b>五大保固</b>（引擎、變速箱、方向機、啟動馬達、發電機，保固 1 年／2 萬公里）。螢幕顯示 73,850 公里。
       </div>
+      <p class="check-tip">建議現場確認：電池健康度、充電功能</p>
       <div class="links">
         <a class="line-ask" href="https://line.me/R/msg/text/?%E4%BD%A0%E5%A5%BD%EF%BC%8C%E6%88%91%E6%83%B3%E5%95%8F%E9%80%99%E5%8F%B0%202019%20Tesla%20Model%20X%20Performance%EF%BC%8C%E8%B3%A3%E5%83%B9%20NT%241%2C780%2C000%EF%BC%8C%E9%82%84%E5%9C%A8%E5%97%8E%EF%BC%9F%20%E7%B6%B2%E7%AB%99%EF%BC%9Ahttps%3A%2F%2Flifebc143.github.io%2Ftaichung-used-cars%2F" target="_blank" rel="noopener">LINE 問這台車</a>
         <a href="https://www.facebook.com/marketplace/item/1099613089580955" target="_blank" rel="noopener">臉書刊登</a>
@@ -416,7 +492,7 @@
     </div>
   </article>
 
-  <article class="car" id="car-v250d">
+  <article class="car" id="car-v250d" data-price="980000" data-body="MPV" data-power="柴油" data-km="130000" data-order="5">
     <div class="car-head">
       <h3>2018 Mercedes-Benz V250d</h3>
       <div class="sub">八人座豪華 MPV・黑色・13萬公里</div>
@@ -467,7 +543,7 @@
     </div>
   </article>
 
-  <article class="car" id="car-colt">
+  <article class="car" id="car-colt" data-price="128000" data-body="掀背" data-power="汽油" data-km="119878" data-order="6">
     <div class="car-head">
       <h3>2014 Mitsubishi Colt Plus</h3>
       <div class="sub">五門掀背小車・灰色・里程表實拍 119,878 公里</div>
@@ -511,6 +587,7 @@
       <div class="hot-box">
         <b>HOT認證車：</b>180項查驗・三大保證・五大保固，無泡水・無重大事故・無引擎變造，不符原價買回；引擎・變速箱・方向機・啟動馬達・發電機保固1年/2萬公里。里程表實拍 119,878 公里。認證日期 2025/07/31。
       </div>
+      <p class="check-tip">建議現場確認：底盤、耗材與冷氣</p>
       <div class="links">
         <a class="line-ask" href="https://line.me/R/msg/text/?%E4%BD%A0%E5%A5%BD%EF%BC%8C%E6%88%91%E6%83%B3%E5%95%8F%E9%80%99%E5%8F%B0%202014%20Mitsubishi%20Colt%20Plus%EF%BC%8C%E8%B3%A3%E5%83%B9%20NT%24128%2C000%EF%BC%8C%E9%82%84%E5%9C%A8%E5%97%8E%EF%BC%9F%20%E7%B6%B2%E7%AB%99%EF%BC%9Ahttps%3A%2F%2Flifebc143.github.io%2Ftaichung-used-cars%2F" target="_blank" rel="noopener">LINE 問這台車</a>
         <a href="https://www.facebook.com/marketplace/item/1903579674342919" target="_blank" rel="noopener">臉書刊登</a>
@@ -520,7 +597,7 @@
     </div>
   </article>
 
-  <article class="car" id="car-520d">
+  <article class="car" id="car-520d" data-price="388000" data-body="旅行車" data-power="柴油" data-km="265981" data-order="7">
     <div class="car-head">
       <h3>2012 BMW 520d Touring</h3>
       <div class="sub">柴油旅行車・黑色・里程表實拍 265,981 公里</div>
@@ -570,6 +647,7 @@
       <div class="hot-box">
         <b>實拍確認：</b>全景天窗、電動尾門、360 環景皆為實車實拍，里程表實拍 265,981 公里。
       </div>
+      <p class="check-tip">建議現場確認：渦輪、柴油系統與底盤耗材</p>
       <div class="links">
         <a class="line-ask" href="https://line.me/R/msg/text/?%E4%BD%A0%E5%A5%BD%EF%BC%8C%E6%88%91%E6%83%B3%E5%95%8F%E9%80%99%E5%8F%B0%202012%20BMW%20520d%20Touring%EF%BC%8C%E8%B3%A3%E5%83%B9%20NT%24388%2C000%EF%BC%8C%E9%82%84%E5%9C%A8%E5%97%8E%EF%BC%9F%20%E7%B6%B2%E7%AB%99%EF%BC%9Ahttps%3A%2F%2Flifebc143.github.io%2Ftaichung-used-cars%2F" target="_blank" rel="noopener">LINE 問這台車</a>
         <a href="https://www.facebook.com/marketplace/item/2242821546592240" target="_blank" rel="noopener">臉書刊登</a>
@@ -579,7 +657,7 @@
     </div>
   </article>
 
-  <article class="car" id="car-520i">
+  <article class="car" id="car-520i" data-price="1098000" data-body="房車" data-power="汽油" data-km="105000" data-order="8">
     <div class="car-head">
       <h3>2019 BMW 520i M Sport</h3>
       <div class="sub">中大型豪華房車・白色・里程 105,000 公里</div>
@@ -631,7 +709,7 @@
       </div>
     </div>
   </article>
-  <article class="car" id="car-defender">
+  <article class="car" id="car-defender" data-price="1880000" data-body="SUV" data-power="柴油" data-km="51796" data-order="9">
     <div class="car-head">
       <h3>2023 Land Rover Defender 90 D250</h3>
       <div class="sub">短軸三門越野休旅・黑色・里程 51,796 公里</div>
@@ -681,7 +759,7 @@
     </div>
   </article>
 
-  <article class="car" id="car-panamera">
+  <article class="car" id="car-panamera" data-price="4180000" data-body="房車" data-power="汽油" data-km="11200" data-order="10">
     <div class="car-head">
       <h3>2023 Porsche Panamera 4</h3>
       <div class="sub">四門跑車・蠟灰色・里程 11,200 公里</div>
@@ -739,7 +817,7 @@
     </div>
   </article>
 
-  <article class="car" id="car-mazda5">
+  <article class="car" id="car-mazda5" data-price="298000" data-body="MPV" data-power="汽油" data-km="72387" data-order="11">
     <div class="car-head">
       <h3>2014 Mazda 5 七人座</h3>
       <div class="sub">七人座 MPV・白色・里程 72,387 公里</div>
@@ -781,6 +859,7 @@
       <div class="hot-box">
         <b>HOT認證車：</b>180項查驗・三大保證・五大保固，無泡水・無重大事故・無引擎變造，不符原價買回；引擎・變速箱・方向機・啟動馬達・發電機保固1年/2萬公里。里程表實拍 72,387 公里。
       </div>
+      <p class="check-tip">建議現場確認：底盤、耗材與冷氣</p>
       <div class="links">
         <a class="line-ask" href="https://line.me/R/msg/text/?%E4%BD%A0%E5%A5%BD%EF%BC%8C%E6%88%91%E6%83%B3%E5%95%8F%E9%80%99%E5%8F%B0%202014%20Mazda%205%20%E4%B8%83%E4%BA%BA%E5%BA%A7%EF%BC%8C%E8%B3%A3%E5%83%B9%20NT%24298%2C000%EF%BC%8C%E9%82%84%E5%9C%A8%E5%97%8E%EF%BC%9F%20%E7%B6%B2%E7%AB%99%EF%BC%9Ahttps%3A%2F%2Flifebc143.github.io%2Ftaichung-used-cars%2F" target="_blank" rel="noopener">LINE 問這台車</a>
         <a href="https://www.facebook.com/marketplace/item/4546113685717415" target="_blank" rel="noopener">臉書刊登</a>
@@ -790,7 +869,7 @@
     </div>
   </article>
 
-  <article class="car" id="car-cc">
+  <article class="car" id="car-cc" data-price="558000" data-body="SUV" data-power="汽油" data-km="133043" data-order="12">
     <div class="car-head">
       <h3>2021 Toyota Corolla Cross GR Sport</h3>
       <div class="sub">運動休旅・白色（雙色車頂）・里程 133,043 公里</div>
@@ -844,7 +923,7 @@
     </div>
   </article>
 
-  <article class="car" id="car-e300">
+  <article class="car" id="car-e300" data-price="1680000" data-body="房車" data-power="汽油" data-km="47469" data-order="13">
     <div class="car-head">
       <h3>2021 Mercedes-Benz E300 運動版</h3>
       <div class="sub">豪華房車・白色・里程 47,469 公里</div>
@@ -895,7 +974,7 @@
     </div>
   </article>
 
-  <article class="car" id="car-altisgr">
+  <article class="car" id="car-altisgr" data-price="488000" data-body="房車" data-power="油電" data-km="281631" data-order="14">
     <div class="car-head">
       <h3>2020 Toyota Corolla Altis GR Sport Hybrid</h3>
       <div class="sub">油電房車・白色・里程 281,631 公里</div>
@@ -941,7 +1020,7 @@
     </div>
   </article>
 
-  <article class="car" id="car-model3">
+  <article class="car" id="car-model3" data-price="990000" data-body="房車" data-power="純電" data-km="120000" data-order="15">
     <div class="car-head">
       <h3>2022 Tesla Model 3 Long Range</h3>
       <div class="sub">純電房車・白色・里程 120,000 公里</div>
@@ -979,6 +1058,7 @@
       <div class="hot-box">
         <b>HOT 認證車：</b>180 項查驗，<b>三大保證</b>（無泡水、無重大事故、無引擎變造，不符原價買回），<b>五大保固</b>（引擎、變速箱、方向機、啟動馬達、發電機，保固 1 年／2 萬公里）。
       </div>
+      <p class="check-tip">建議現場確認：電池健康度、充電功能</p>
       <div class="links">
         <a class="line-ask" href="https://line.me/R/msg/text/?%E4%BD%A0%E5%A5%BD%EF%BC%8C%E6%88%91%E6%83%B3%E5%95%8F%E9%80%99%E5%8F%B0%202022%20Tesla%20Model%203%20Long%20Range%EF%BC%8C%E8%B3%A3%E5%83%B9%20NT%24990%2C000%EF%BC%8C%E9%82%84%E5%9C%A8%E5%97%8E%EF%BC%9F%20%E7%B6%B2%E7%AB%99%EF%BC%9Ahttps%3A%2F%2Flifebc143.github.io%2Ftaichung-used-cars%2F" target="_blank" rel="noopener">LINE 問這台車</a>
         <a href="https://www.facebook.com/marketplace/item/1732217818475732" target="_blank" rel="noopener">臉書刊登</a>
@@ -988,7 +1068,7 @@
     </div>
   </article>
 
-  <article class="car" id="car-altis">
+  <article class="car" id="car-altis" data-price="528000" data-body="房車" data-power="汽油" data-km="56157" data-order="16">
     <div class="car-head">
       <h3>2024 Toyota Corolla Altis 1.8 豪華</h3>
       <div class="sub">汽油房車・白色・里程 56,157 公里</div>
@@ -1040,7 +1120,7 @@
     </div>
   </article>
 
-  <article class="car" id="car-ux250h">
+  <article class="car" id="car-ux250h" data-price="998000" data-body="SUV" data-power="油電" data-km="66358" data-order="17">
     <div class="car-head">
       <h3>2023 Lexus UX250h</h3>
       <div class="sub">油電休旅・白色・里程 66,358 公里</div>
@@ -1092,7 +1172,7 @@
     </div>
   </article>
 
-  <h2 class="section-title">更多車輛</h2>
+  <h2 class="section-title" id="more-cars">更多車輛</h2>
   <div class="coming">更多車輛陸續上架中。想賣車，或想找特定車款，直接 LINE 私訊我們。</div>
 
 </div>
@@ -1122,6 +1202,98 @@
   window.addEventListener('scroll', function () {
     backToTopBtn.style.display = window.scrollY > 400 ? 'block' : 'none';
   }, { passive: true });
+</script>
+
+
+<script>
+(function () {
+  var cards = Array.prototype.slice.call(document.querySelectorAll('article.car'));
+  var moreH2 = document.getElementById('more-cars');
+  var parent = moreH2.parentNode;
+  var countEl = document.getElementById('filter-count');
+  var sortSelect = document.getElementById('sort-select');
+  var state = { price: 'all', body: 'all', power: 'all', sort: 'newest' };
+  function priceOk(p) {
+    if (state.price === 'all') return true;
+    if (state.price === 'lt50') return p < 500000;
+    if (state.price === '50-100') return p >= 500000 && p < 1000000;
+    if (state.price === '100-200') return p >= 1000000 && p < 2000000;
+    if (state.price === 'gt200') return p >= 2000000;
+    return true;
+  }
+  function apply() {
+    var visible = [];
+    cards.forEach(function (c) {
+      var p = parseInt(c.getAttribute('data-price'), 10);
+      var ok = priceOk(p)
+        && (state.body === 'all' || c.getAttribute('data-body') === state.body)
+        && (state.power === 'all' || c.getAttribute('data-power') === state.power);
+      c.style.display = ok ? '' : 'none';
+      if (ok) visible.push(c);
+    });
+    visible.sort(function (a, b) {
+      if (state.sort === 'price-asc') return parseInt(a.getAttribute('data-price'), 10) - parseInt(b.getAttribute('data-price'), 10);
+      if (state.sort === 'price-desc') return parseInt(b.getAttribute('data-price'), 10) - parseInt(a.getAttribute('data-price'), 10);
+      if (state.sort === 'km-asc') return parseInt(a.getAttribute('data-km'), 10) - parseInt(b.getAttribute('data-km'), 10);
+      return parseInt(a.getAttribute('data-order'), 10) - parseInt(b.getAttribute('data-order'), 10);
+    });
+    visible.forEach(function (c) { parent.insertBefore(c, moreH2); });
+    countEl.textContent = '共 ' + visible.length + ' 台';
+  }
+  document.querySelectorAll('#filter-bar .filter-group[data-filter]').forEach(function (g) {
+    g.addEventListener('click', function (e) {
+      var btn = e.target.closest('.chip');
+      if (!btn) return;
+      g.querySelectorAll('.chip').forEach(function (c) { c.classList.remove('active'); });
+      btn.classList.add('active');
+      state[g.getAttribute('data-filter')] = btn.getAttribute('data-value');
+      apply();
+    });
+  });
+  sortSelect.addEventListener('change', function () { state.sort = sortSelect.value; apply(); });
+  document.getElementById('filter-reset').addEventListener('click', function () {
+    state = { price: 'all', body: 'all', power: 'all', sort: 'newest' };
+    sortSelect.value = 'newest';
+    document.querySelectorAll('#filter-bar .chip').forEach(function (c) {
+      c.classList.toggle('active', c.getAttribute('data-value') === 'all');
+    });
+    apply();
+  });
+  apply();
+})();
+</script>
+<script>
+(function () {
+  function copyText(text, btn) {
+    function done() {
+      var old = btn.textContent;
+      btn.textContent = '已複製';
+      btn.disabled = true;
+      setTimeout(function () { btn.textContent = old; btn.disabled = false; }, 2000);
+    }
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); done(); } catch (e) { /* 使用者可手動複製 */ }
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, fallback);
+    } else {
+      fallback();
+    }
+  }
+  document.querySelectorAll('.copy-tpl').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var el = document.getElementById(btn.getAttribute('data-target'));
+      if (el) copyText(el.textContent, btn);
+    });
+  });
+})();
 </script>
 
 </body>
